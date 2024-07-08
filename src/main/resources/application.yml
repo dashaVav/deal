@@ -1,6 +1,24 @@
 spring:
   application:
     name: deal
+  datasource:
+    url: jdbc:postgresql://localhost:5432/deal
+    username: deal_worker
+    password: deal_worker
+  liquibase:
+    enabled: false
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    database: postgresql
+    database-platform:
 
 server:
-  port: 8091
+  port: 8092
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
