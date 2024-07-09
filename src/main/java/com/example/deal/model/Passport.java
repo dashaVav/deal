@@ -14,6 +14,6 @@ import java.time.LocalDate;
 public class Passport {
     private String series;
     private String number;
-    private LocalDate issue_date;
-    private String issue_branch;
+    private LocalDate issueDate;
+    private String issueBranch;
 }

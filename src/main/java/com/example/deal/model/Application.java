@@ -2,26 +2,34 @@ package com.example.deal.model;
 
 import com.example.deal.dtos.ApplicationStatus;
 import com.example.deal.dtos.ApplicationStatusHistoryDTO;
-import com.example.deal.dtos.CreditDTO;
+import com.example.deal.dtos.LoanOfferDTO;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "application")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Application {
     @Id
     @Column(name = "application_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long application_id;
-    @Column(name = "client")
-    private long client_id;
+    private Long applicationId;
 
-    @Column(name = "credit")
-    private long credit_id;
+    @Column(name = "client_id")
+    private Long clientId;
+
+    @Column(name = "credit_id")
+    private Long creditId;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -32,7 +40,7 @@ public class Application {
 
     @Column(name = "applied_offer")
     @JdbcTypeCode(SqlTypes.JSON)
-    private CreditDTO appliedOffer;
+    private LoanOfferDTO appliedOffer;
 
     @Column(name = "sign_date")
     private LocalDateTime signDate;
@@ -42,8 +50,5 @@ public class Application {
 
     @Column(name = "status_history")
     @JdbcTypeCode(SqlTypes.JSON)
-    private List<ApplicationStatusHistoryDTO> statusHistory;
-
-//    @OneToOne
-//    private Client client1;
+    private List<ApplicationStatusHistoryDTO> statusHistory = new ArrayList<>();
 }

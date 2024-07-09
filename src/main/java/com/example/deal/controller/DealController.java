@@ -18,5 +18,5 @@ public interface DealController {
     ResponseEntity<Void> offer(@RequestBody LoanOfferDTO loanOffer);
 
     @PutMapping(path = "/calculate/{applicationId}")
-    ResponseEntity<Void> calculation(@RequestBody FinishRegistrationRequestDTO finishRegistrationRequest, @PathVariable String applicationId);
+    ResponseEntity<Void> calculation(@RequestBody FinishRegistrationRequestDTO finishRegistrationRequest, @PathVariable Long applicationId);
 }

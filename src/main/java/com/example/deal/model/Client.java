@@ -36,7 +36,7 @@ public class Client {
     private String middleName;
 
     @Column(name = "birth_date")
-    private LocalDate birthDate;
+    private LocalDate birthdate;
 
     @Column(name = "email")
     private String email;
