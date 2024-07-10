@@ -26,15 +26,16 @@ public class ClientService {
     private final JpaCreditRepository creditRepository;
     private final ConveyorClient conveyorClient;
 
-    public List<LoanOfferDTO> createLoanOffers(LoanApplicationRequestDTO client) {
-        Client savedClient = clientRepository.save(ClientMapper.INSTANCE.from(client));
+    public List<LoanOfferDTO> createLoanOffers(LoanApplicationRequestDTO loanApplicationRequest) {
+        Client savedClient = clientRepository.save(ClientMapper.INSTANCE.from(loanApplicationRequest));
 
         Application application = new Application();
         application.setClientId(savedClient.getClientId());
         application.setCreationDate(LocalDateTime.now());
         Application savedApplication = applicationRepository.save(application);
 
-        return setApplicationId(savedApplication.getApplicationId(), conveyorClient.offers(client));
+
+        return setApplicationId(savedApplication.getApplicationId(), conveyorClient.offers(loanApplicationRequest));
     }
 
     private List<LoanOfferDTO> setApplicationId(long applicationId, List<LoanOfferDTO> loanOfferDTOS) {

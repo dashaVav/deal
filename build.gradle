@@ -29,7 +29,6 @@ dependencyManagement {
 	}
 }
 
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
@@ -49,6 +48,7 @@ dependencies {
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.2.Final'
 
 	implementation 'io.github.openfeign:feign-okhttp:13.1'
+	implementation 'io.github.openfeign:feign-core:13.1'
 	implementation 'io.github.openfeign:feign-gson:13.1'
 	implementation 'io.github.openfeign:feign-slf4j:13.1'
 	implementation 'io.github.openfeign:feign-core:13.1'
