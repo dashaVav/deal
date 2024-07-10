@@ -1,4 +1,4 @@
-package com.example.deal.dtos;
+package com.example.deal.model;
 
 public enum ApplicationStatus {
     PREAPPROVAL,

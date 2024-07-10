@@ -1,4 +1,4 @@
-package com.example.deal.dtos;
+package com.example.deal.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApplicationStatusHistoryDTO {
+public class ApplicationStatusHistory {
     private ApplicationStatus applicationStatus;
     private LocalDateTime time;
     private StatusHistory changeType;

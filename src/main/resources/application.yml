@@ -22,3 +22,13 @@ server:
 springdoc:
   swagger-ui:
     path: /swagger-ui
+
+feign-client:
+  conveyor-client:
+    base-url: http://localhost:8091
+    offers-path: /conveyor/offers
+    calculation-path: /conveyor/calculation
+    retryer:
+      period: 100
+      max-period: 10000
+      max-attempts: 2

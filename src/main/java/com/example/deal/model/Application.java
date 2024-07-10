@@ -1,7 +1,5 @@
 package com.example.deal.model;
 
-import com.example.deal.dtos.ApplicationStatus;
-import com.example.deal.dtos.ApplicationStatusHistoryDTO;
 import com.example.deal.dtos.LoanOfferDTO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -45,7 +43,7 @@ public class Application {
 
     @Column(name = "status_history")
     @JdbcTypeCode(SqlTypes.JSON)
-    private List<ApplicationStatusHistoryDTO> statusHistory = new ArrayList<>();
+    private List<ApplicationStatusHistory> statusHistory = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "client_id", nullable = false)
@@ -55,7 +53,7 @@ public class Application {
     @JoinColumn(name = "credit_id")
     private Credit credit;
 
-    public List<ApplicationStatusHistoryDTO> getStatusHistory() {
+    public List<ApplicationStatusHistory> getStatusHistory() {
         if (statusHistory == null) {
             statusHistory = new ArrayList<>();
         }
