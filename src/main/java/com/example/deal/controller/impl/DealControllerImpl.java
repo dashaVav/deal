@@ -5,7 +5,7 @@ import com.example.deal.controller.DealController;
 import com.example.deal.dtos.FinishRegistrationRequestDTO;
 import com.example.deal.dtos.LoanApplicationRequestDTO;
 import com.example.deal.dtos.LoanOfferDTO;
-import com.example.deal.service.ClientService;
+import com.example.deal.service.DealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,22 +16,22 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class DealControllerImpl implements DealController {
-    private final ClientService clientService;
+    private final DealService dealService;
 
     @Override
     public ResponseEntity<List<LoanOfferDTO>> application(LoanApplicationRequestDTO loanApplicationRequest) {
-        return ResponseEntity.ok(clientService.createLoanOffers(loanApplicationRequest));
+        return ResponseEntity.ok(dealService.createLoanOffers(loanApplicationRequest));
     }
 
     @Override
     public ResponseEntity<Void> offer(LoanOfferDTO loanOffer) {
-        clientService.offer(loanOffer);
+        dealService.offer(loanOffer);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<Void> calculation(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId) {
-        clientService.calculate(finishRegistrationRequest, applicationId);
+        dealService.calculate(finishRegistrationRequest, applicationId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
