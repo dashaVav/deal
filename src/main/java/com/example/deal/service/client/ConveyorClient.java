@@ -1,4 +1,4 @@
-package com.example.deal.client;
+package com.example.deal.service.client;
 
 import com.example.deal.dtos.CreditDTO;
 import com.example.deal.dtos.LoanApplicationRequestDTO;

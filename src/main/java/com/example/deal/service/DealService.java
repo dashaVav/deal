@@ -11,7 +11,6 @@ public interface DealService {
     @Transactional
     List<LoanOfferDTO> createLoanOffers(LoanApplicationRequestDTO loanApplicationRequest);
 
-    @Transactional
     void offer(LoanOfferDTO loanOffer);
 
     @Transactional

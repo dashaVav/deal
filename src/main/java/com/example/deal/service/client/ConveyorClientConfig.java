@@ -1,4 +1,4 @@
-package com.example.deal.client;
+package com.example.deal.service.client;
 
 import feign.Retryer;
 import org.springframework.beans.factory.annotation.Value;

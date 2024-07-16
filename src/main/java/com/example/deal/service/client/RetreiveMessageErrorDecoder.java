@@ -1,4 +1,4 @@
-package com.example.deal.client;
+package com.example.deal.service.client;
 
 import com.example.deal.exception.ConveyorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
