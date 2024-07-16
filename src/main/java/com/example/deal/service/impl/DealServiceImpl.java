@@ -1,7 +1,10 @@
 package com.example.deal.service.impl;
 
 import com.example.deal.client.ConveyorClient;
-import com.example.deal.dtos.*;
+import com.example.deal.dtos.FinishRegistrationRequestDTO;
+import com.example.deal.dtos.LoanApplicationRequestDTO;
+import com.example.deal.dtos.LoanOfferDTO;
+import com.example.deal.dtos.ScoringDataDTO;
 import com.example.deal.exception.ApplicationNotFoundException;
 import com.example.deal.mappers.ClientMapper;
 import com.example.deal.mappers.CreditMapper;

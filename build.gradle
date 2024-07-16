@@ -53,8 +53,10 @@ dependencies {
 	implementation 'io.github.openfeign:feign-slf4j:13.1'
 	implementation 'io.github.openfeign:feign-core:13.1'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.0.4'
-}
 
+	implementation 'org.springframework.kafka:spring-kafka'
+	implementation 'org.springframework.kafka:spring-kafka-test'
+}
 
 tasks.named('test') {
 	useJUnitPlatform()

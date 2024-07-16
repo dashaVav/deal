@@ -15,7 +15,15 @@ spring:
         ddl-auto: validate
         format_sql: true
     database: postgresql
-
+  kafka:
+    bootstrap-servers: localhost:29091
+    topic:
+      finish-registration: finish-registration
+      create-documents: create-documents
+      send-documents: send-documents
+      send-ses: send-ses
+      credit-issued: credit-issued
+      application-denied: application-denied
 
 server:
   port: 8092
