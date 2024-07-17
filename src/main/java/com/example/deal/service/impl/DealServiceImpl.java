@@ -32,7 +32,11 @@ public class DealServiceImpl implements DealService {
     public void offer(LoanOfferDTO loanOffer) {
         repositoryService.offer(loanOffer);
         notificationProducer.produceFinishRegistration(
-                createEmailMessage(loanOffer.getApplicationId(), EmailMessageStatus.FINISH_REGISTRATION)
+                new EmailMessage(
+                        repositoryService.getEmailAddressByApplicationId(loanOffer.getApplicationId()),
+                        EmailMessageStatus.FINISH_REGISTRATION,
+                        loanOffer.getApplicationId()
+                )
         );
     }
 
@@ -43,14 +47,11 @@ public class DealServiceImpl implements DealService {
         repositoryService.calculate(finishRegistrationRequest, applicationId, credit);
 
         notificationProducer.produceCreateDocuments(
-                createEmailMessage(applicationId, EmailMessageStatus.CREATE_DOCUMENTS)
+                new EmailMessage(
+                        repositoryService.getEmailAddressByApplicationId(applicationId),
+                        EmailMessageStatus.CREATE_DOCUMENTS,
+                        applicationId
+                )
         );
-    }
-
-    private EmailMessage createEmailMessage(Long applicationId, EmailMessageStatus emailMessageStatus) {
-        EmailMessage emailMessage = new EmailMessage();
-        return emailMessage.setAddress(repositoryService.getEmailAddressByApplicationId(applicationId))
-                .setApplicationId(applicationId)
-                .setTheme(emailMessageStatus);
     }
 }

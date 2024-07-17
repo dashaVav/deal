@@ -30,4 +30,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<DealException> handleApplicationNotFoundException(ApplicationNotFoundException e) {
         return handleTheException(e, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(InvalidSesCodeException.class)
+    public ResponseEntity<DealException> handleBadRequestsException(RuntimeException e) {
+        return handleTheException(e, HttpStatus.BAD_REQUEST);
+    }
 }

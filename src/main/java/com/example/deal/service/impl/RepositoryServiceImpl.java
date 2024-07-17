@@ -92,8 +92,38 @@ public class RepositoryServiceImpl implements RepositoryService {
                 .build();
     }
 
-    private Application getApplicationById(Long applicationId) {
+    @Override
+    public Application getApplicationById(Long applicationId) {
         return applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("Application id not found."));
+    }
+
+    @Override
+    public void updateApplicationStatus(Long applicationId, ApplicationStatus applicationStatus) {
+        Application application = getApplicationById(applicationId);
+        application.setApplicationStatus(applicationStatus);
+        application.getStatusHistory().add(
+                initApplicationStatusHistoryDTO(application.getApplicationStatus())
+        );
+
+        applicationRepository.save(application);
+    }
+
+    @Override
+    public List<Application> getAllApplications() {
+        return applicationRepository.findAll();
+    }
+
+    @Override
+    public void setSesCode(Long applicationId, String seCode) {
+        Application application = getApplicationById(applicationId);
+        application.setSesCode(seCode);
+        applicationRepository.save(application);
+    }
+
+    @Override
+    public String getSesCode(Long applicationId) {
+        Application application = getApplicationById(applicationId);
+        return application.getSesCode();
     }
 }
