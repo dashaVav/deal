@@ -1,10 +1,11 @@
 package com.example.deal.service.impl;
 
-import com.example.deal.dtos.*;
+import com.example.deal.dto.*;
+import com.example.deal.dto.enums.EmailMessageStatus;
+import com.example.deal.service.ConveyorClient;
 import com.example.deal.service.DealService;
 import com.example.deal.service.RepositoryService;
-import com.example.deal.service.client.ConveyorClient;
-import com.example.deal.service.kafka.NotificationProducer;
+import com.example.deal.service.NotificationProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

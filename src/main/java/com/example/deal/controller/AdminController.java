@@ -1,6 +1,6 @@
 package com.example.deal.controller;
 
-import com.example.deal.dtos.SesCodeDTO;
+import com.example.deal.dto.SesCodeDTO;
 import com.example.deal.model.Application;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

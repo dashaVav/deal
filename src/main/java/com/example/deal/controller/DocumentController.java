@@ -1,6 +1,6 @@
 package com.example.deal.controller;
 
-import com.example.deal.dtos.SesCodeDTO;
+import com.example.deal.dto.SesCodeDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,5 +1,7 @@
-package com.example.deal.dtos;
+package com.example.deal.dto;
 
+import com.example.deal.dto.enums.Gender;
+import com.example.deal.dto.enums.MaritalStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

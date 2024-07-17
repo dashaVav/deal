@@ -1,9 +1,9 @@
-package com.example.deal.service.client;
+package com.example.deal.service;
 
-import com.example.deal.dtos.CreditDTO;
-import com.example.deal.dtos.LoanApplicationRequestDTO;
-import com.example.deal.dtos.LoanOfferDTO;
-import com.example.deal.dtos.ScoringDataDTO;
+import com.example.deal.dto.CreditDTO;
+import com.example.deal.dto.LoanApplicationRequestDTO;
+import com.example.deal.dto.LoanOfferDTO;
+import com.example.deal.dto.ScoringDataDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

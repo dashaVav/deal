@@ -1,6 +1,6 @@
 package com.example.deal.service.kafka;
 
-import com.example.deal.dtos.EmailMessage;
+import com.example.deal.dto.EmailMessage;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;

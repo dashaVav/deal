@@ -1,13 +1,13 @@
 package com.example.deal.service.impl;
 
-import com.example.deal.dtos.EmailMessage;
-import com.example.deal.dtos.EmailMessageStatus;
-import com.example.deal.dtos.SesCodeDTO;
+import com.example.deal.dto.EmailMessage;
+import com.example.deal.dto.SesCodeDTO;
+import com.example.deal.dto.enums.EmailMessageStatus;
 import com.example.deal.exception.InvalidSesCodeException;
-import com.example.deal.model.ApplicationStatus;
+import com.example.deal.model.enums.ApplicationStatus;
 import com.example.deal.service.DocumentService;
 import com.example.deal.service.RepositoryService;
-import com.example.deal.service.kafka.NotificationProducer;
+import com.example.deal.service.NotificationProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

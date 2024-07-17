@@ -1,6 +1,7 @@
 package com.example.deal.model;
 
-import com.example.deal.dtos.LoanOfferDTO;
+import com.example.deal.dto.LoanOfferDTO;
+import com.example.deal.model.enums.ApplicationStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;

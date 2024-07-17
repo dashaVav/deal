@@ -1,8 +1,8 @@
-package com.example.deal.mappers;
+package com.example.deal.mapper;
 
-import com.example.deal.dtos.FinishRegistrationRequestDTO;
-import com.example.deal.dtos.LoanOfferDTO;
-import com.example.deal.dtos.ScoringDataDTO;
+import com.example.deal.dto.FinishRegistrationRequestDTO;
+import com.example.deal.dto.LoanOfferDTO;
+import com.example.deal.dto.ScoringDataDTO;
 import com.example.deal.model.Client;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

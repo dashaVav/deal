@@ -1,6 +1,6 @@
-package com.example.deal.mappers;
+package com.example.deal.mapper;
 
-import com.example.deal.dtos.CreditDTO;
+import com.example.deal.dto.CreditDTO;
 import com.example.deal.model.Credit;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

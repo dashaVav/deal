@@ -1,4 +1,4 @@
-package com.example.deal.dtos;
+package com.example.deal.dto;
 
 import com.example.deal.model.PaymentScheduleElement;
 import lombok.AllArgsConstructor;

@@ -2,9 +2,9 @@ package com.example.deal.controller.impl;
 
 
 import com.example.deal.controller.DealController;
-import com.example.deal.dtos.FinishRegistrationRequestDTO;
-import com.example.deal.dtos.LoanApplicationRequestDTO;
-import com.example.deal.dtos.LoanOfferDTO;
+import com.example.deal.dto.FinishRegistrationRequestDTO;
+import com.example.deal.dto.LoanApplicationRequestDTO;
+import com.example.deal.dto.LoanOfferDTO;
 import com.example.deal.service.DealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

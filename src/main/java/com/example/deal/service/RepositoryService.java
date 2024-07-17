@@ -1,8 +1,8 @@
 package com.example.deal.service;
 
-import com.example.deal.dtos.*;
+import com.example.deal.dto.*;
 import com.example.deal.model.Application;
-import com.example.deal.model.ApplicationStatus;
+import com.example.deal.model.enums.ApplicationStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

@@ -1,11 +1,14 @@
 package com.example.deal.service.impl;
 
-import com.example.deal.dtos.*;
+import com.example.deal.dto.*;
 import com.example.deal.exception.ApplicationNotFoundException;
-import com.example.deal.mappers.ClientMapper;
-import com.example.deal.mappers.CreditMapper;
-import com.example.deal.mappers.ScoringDataDTOMapper;
+import com.example.deal.mapper.ClientMapper;
+import com.example.deal.mapper.CreditMapper;
+import com.example.deal.mapper.ScoringDataDTOMapper;
 import com.example.deal.model.*;
+import com.example.deal.model.enums.ApplicationStatus;
+import com.example.deal.model.enums.CreditStatus;
+import com.example.deal.model.enums.StatusHistory;
 import com.example.deal.repository.JpaApplicationRepository;
 import com.example.deal.repository.JpaClientRepository;
 import com.example.deal.service.RepositoryService;

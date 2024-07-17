@@ -1,9 +1,9 @@
 package com.example.deal.controller;
 
 
-import com.example.deal.dtos.FinishRegistrationRequestDTO;
-import com.example.deal.dtos.LoanApplicationRequestDTO;
-import com.example.deal.dtos.LoanOfferDTO;
+import com.example.deal.dto.FinishRegistrationRequestDTO;
+import com.example.deal.dto.LoanApplicationRequestDTO;
+import com.example.deal.dto.LoanOfferDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

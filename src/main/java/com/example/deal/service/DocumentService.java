@@ -1,6 +1,6 @@
 package com.example.deal.service;
 
-import com.example.deal.dtos.SesCodeDTO;
+import com.example.deal.dto.SesCodeDTO;
 
 public interface DocumentService {
     void sendDocuments(Long applicationId);

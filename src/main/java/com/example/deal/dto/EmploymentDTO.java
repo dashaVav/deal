@@ -1,5 +1,7 @@
-package com.example.deal.dtos;
+package com.example.deal.dto;
 
+import com.example.deal.dto.enums.EmploymentPosition;
+import com.example.deal.dto.enums.EmploymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

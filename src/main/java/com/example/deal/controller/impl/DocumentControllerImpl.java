@@ -1,7 +1,7 @@
 package com.example.deal.controller.impl;
 
 import com.example.deal.controller.DocumentController;
-import com.example.deal.dtos.SesCodeDTO;
+import com.example.deal.dto.SesCodeDTO;
 import com.example.deal.service.DocumentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

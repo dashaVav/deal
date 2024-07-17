@@ -1,7 +1,7 @@
 package com.example.deal.controller.impl;
 
 import com.example.deal.controller.AdminController;
-import com.example.deal.dtos.SesCodeDTO;
+import com.example.deal.dto.SesCodeDTO;
 import com.example.deal.model.Application;
 import com.example.deal.service.AdminService;
 import lombok.RequiredArgsConstructor;
