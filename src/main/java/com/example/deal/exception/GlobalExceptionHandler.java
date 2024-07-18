@@ -26,8 +26,8 @@ public class GlobalExceptionHandler {
         return handleTheException(new RuntimeException("Connection refused."), HttpStatus.SERVICE_UNAVAILABLE);
     }
 
-    @ExceptionHandler(ApplicationNotFoundException.class)
-    public ResponseEntity<DealException> handleApplicationNotFoundException(ApplicationNotFoundException e) {
+    @ExceptionHandler({ApplicationNotFoundException.class, OfferDoesNotExistException.class})
+    public ResponseEntity<DealException> handleApplicationNotFoundException(RuntimeException e) {
         return handleTheException(e, HttpStatus.NOT_FOUND);
     }
 

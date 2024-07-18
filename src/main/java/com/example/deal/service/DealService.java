@@ -13,6 +13,5 @@ public interface DealService {
 
     void offer(LoanOfferDTO loanOffer);
 
-    @Transactional
     void calculate(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId);
 }

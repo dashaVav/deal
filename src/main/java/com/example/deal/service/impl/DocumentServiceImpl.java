@@ -46,10 +46,19 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public void verifyDocuments(Long applicationId, SesCodeDTO sesCode) {
         if (!sesCode.getCode().equals(repositoryService.getSesCode(applicationId))) {
+            repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.CLIENT_DENIED);
+            notificationProducer.produceApplicationDenied(
+                    new EmailMessage(
+                            repositoryService.getEmailAddressByApplicationId(applicationId),
+                            EmailMessageStatus.APPLICATION_DENIED,
+                            applicationId
+                    )
+            );
             throw new InvalidSesCodeException("Invalid ses code.");
         }
 
         repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.DOCUMENT_SIGNED);
+        repositoryService.setCreationDate(applicationId);
         repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.CREDIT_ISSUED);
         notificationProducer.produceCreditIssued(
                 new EmailMessage(

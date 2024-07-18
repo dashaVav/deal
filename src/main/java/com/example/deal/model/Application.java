@@ -36,6 +36,10 @@ public class Application {
     @JdbcTypeCode(SqlTypes.JSON)
     private LoanOfferDTO appliedOffer;
 
+    @Column(name = "loan_offers")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<LoanOfferDTO> loanOffers;
+
     @Column(name = "sign_date")
     private LocalDateTime signDate;
 

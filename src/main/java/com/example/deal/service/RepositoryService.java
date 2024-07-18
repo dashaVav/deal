@@ -11,7 +11,6 @@ public interface RepositoryService {
     @Transactional
     Long createLoanOffers(LoanApplicationRequestDTO loanApplicationRequest);
 
-    @Transactional
     void offer(LoanOfferDTO loanOffer);
 
     @Transactional
@@ -31,4 +30,9 @@ public interface RepositoryService {
     void setSesCode(Long applicationId, String seCode);
 
     String getSesCode(Long applicationId);
+
+    @Transactional
+    void setCreationDate(Long applicationId);
+
+    void saveLoanOffers(Long applicationId, List<LoanOfferDTO> loanOffers);
 }

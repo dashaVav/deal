@@ -2,10 +2,14 @@ package com.example.deal.service.impl;
 
 import com.example.deal.dto.*;
 import com.example.deal.exception.ApplicationNotFoundException;
+import com.example.deal.exception.OfferDoesNotExistException;
 import com.example.deal.mapper.ClientMapper;
 import com.example.deal.mapper.CreditMapper;
 import com.example.deal.mapper.ScoringDataDTOMapper;
-import com.example.deal.model.*;
+import com.example.deal.model.Application;
+import com.example.deal.model.ApplicationStatusHistory;
+import com.example.deal.model.Client;
+import com.example.deal.model.Credit;
 import com.example.deal.model.enums.ApplicationStatus;
 import com.example.deal.model.enums.CreditStatus;
 import com.example.deal.model.enums.StatusHistory;
@@ -21,6 +25,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RepositoryServiceImpl implements RepositoryService {
+    @Override
+    public void setCreationDate(Long applicationId) {
+        Application application = getApplicationById(applicationId);
+        application.setSignDate(LocalDateTime.now());
+        applicationRepository.save(application);
+    }
+
     private final JpaClientRepository clientRepository;
     private final JpaApplicationRepository applicationRepository;
 
@@ -43,6 +54,15 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Override
     public void offer(LoanOfferDTO loanOffer) {
         Application application = getApplicationById(loanOffer.getApplicationId());
+
+        if (!application.getLoanOffers().contains(loanOffer)) {
+            application.setApplicationStatus(ApplicationStatus.CLIENT_DENIED);
+            application.getStatusHistory().add(
+                    initApplicationStatusHistoryDTO(application.getApplicationStatus())
+            );
+            applicationRepository.save(application);
+            throw new OfferDoesNotExistException("Selected offer does not exist.");
+        }
 
         application.setAppliedOffer(loanOffer);
         application.setApplicationStatus(ApplicationStatus.APPROVED);
@@ -128,5 +148,12 @@ public class RepositoryServiceImpl implements RepositoryService {
     public String getSesCode(Long applicationId) {
         Application application = getApplicationById(applicationId);
         return application.getSesCode();
+    }
+
+    @Override
+    public void saveLoanOffers(Long applicationId, List<LoanOfferDTO> loanOffers) {
+        Application application = getApplicationById(applicationId);
+        application.setLoanOffers(loanOffers);
+        applicationRepository.save(application);
     }
 }
