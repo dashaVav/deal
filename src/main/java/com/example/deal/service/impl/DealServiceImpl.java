@@ -11,6 +11,7 @@ import com.example.deal.service.NotificationProducer;
 import com.example.deal.service.RepositoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,11 +23,12 @@ public class DealServiceImpl implements DealService {
     private final NotificationProducer notificationProducer;
 
     @Override
+    @Transactional
     public List<LoanOfferDTO> createLoanOffers(LoanApplicationRequestDTO loanApplicationRequest) {
-        Long applicationId = repositoryService.createLoanOffers(loanApplicationRequest);
-        List<LoanOfferDTO> loanOffers = conveyorClient.offers(loanApplicationRequest);
+        Long applicationId = repositoryService.createApplicationWithClient(loanApplicationRequest);
+        List<LoanOfferDTO> loanOffers = setApplicationId(applicationId, conveyorClient.offers(loanApplicationRequest));
         repositoryService.saveLoanOffers(applicationId, loanOffers);
-        return setApplicationId(applicationId, loanOffers);
+        return loanOffers;
     }
 
     private List<LoanOfferDTO> setApplicationId(long applicationId, List<LoanOfferDTO> loanOfferDTOS) {
@@ -36,11 +38,16 @@ public class DealServiceImpl implements DealService {
 
     @Override
     public void offer(LoanOfferDTO loanOffer) {
-        if (!(repositoryService.getApplicationStatus(loanOffer.getApplicationId()).equals(ApplicationStatus.PREAPPROVAL)
-                || repositoryService.getApplicationStatus(loanOffer.getApplicationId()).equals(ApplicationStatus.APPROVED))) {
+        ApplicationStatus applicationStatus = repositoryService.getApplicationStatus(loanOffer.getApplicationId());
+        if (!(
+                applicationStatus.equals(ApplicationStatus.PREAPPROVAL)
+                        || applicationStatus.equals(ApplicationStatus.APPROVED)
+        )) {
             throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
         }
+        repositoryService.validationOfOffer(loanOffer);
         repositoryService.offer(loanOffer);
+
         notificationProducer.produceFinishRegistration(
                 new EmailMessage(
                         repositoryService.getEmailAddressByApplicationId(loanOffer.getApplicationId()),
@@ -52,28 +59,33 @@ public class DealServiceImpl implements DealService {
 
     @Override
     public void calculate(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId) {
-        if (!(repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.APPROVED)
-                || repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.CC_APPROVED))) {
+        ApplicationStatus applicationStatus = repositoryService.getApplicationStatus(applicationId);
+        if (!(
+                applicationStatus.equals(ApplicationStatus.APPROVED)
+                        || applicationStatus.equals(ApplicationStatus.CC_APPROVED)
+        )) {
             throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
         }
-        ScoringDataDTO scoringData = repositoryService.getScoringData(finishRegistrationRequest, applicationId);
 
+        ScoringDataDTO scoringData = repositoryService.getScoringData(finishRegistrationRequest, applicationId);
         CreditDTO credit;
         try {
             credit = conveyorClient.calculation(scoringData);
         } catch (ConveyorException e) {
-            repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.CC_DENIED);
-            notificationProducer.produceApplicationDenied(
-                    new EmailMessage(
-                            repositoryService.getEmailAddressByApplicationId(applicationId),
-                            EmailMessageStatus.APPLICATION_DENIED,
-                            applicationId
-                    )
-            );
+            if (e.getStatus() == 403) {
+                repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.CC_DENIED);
+                notificationProducer.produceApplicationDenied(
+                        new EmailMessage(
+                                repositoryService.getEmailAddressByApplicationId(applicationId),
+                                EmailMessageStatus.APPLICATION_DENIED,
+                                applicationId
+                        )
+                );
+            }
             throw e;
         }
-        repositoryService.calculate(finishRegistrationRequest, applicationId, credit);
 
+        repositoryService.calculate(finishRegistrationRequest, applicationId, credit);
         notificationProducer.produceCreateDocuments(
                 new EmailMessage(
                         repositoryService.getEmailAddressByApplicationId(applicationId),

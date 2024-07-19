@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({ApplicationNotFoundException.class, OfferDoesNotExistException.class})
-    public ResponseEntity<DealException> handleApplicationNotFoundException(RuntimeException e) {
+    public ResponseEntity<DealException> handleNotFoundException(RuntimeException e) {
         return handleTheException(e, HttpStatus.NOT_FOUND);
     }
 

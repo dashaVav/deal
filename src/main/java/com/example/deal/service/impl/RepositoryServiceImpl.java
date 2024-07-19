@@ -25,18 +25,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RepositoryServiceImpl implements RepositoryService {
-    @Override
-    public void setCreationDate(Long applicationId) {
-        Application application = getApplicationById(applicationId);
-        application.setSignDate(LocalDateTime.now());
-        applicationRepository.save(application);
-    }
-
     private final JpaClientRepository clientRepository;
     private final JpaApplicationRepository applicationRepository;
 
     @Override
-    public Long createLoanOffers(LoanApplicationRequestDTO loanApplicationRequest) {
+    public Long createApplicationWithClient(LoanApplicationRequestDTO loanApplicationRequest) {
         Client savedClient = clientRepository.save(ClientMapper.INSTANCE.from(loanApplicationRequest));
 
         Application savedApplication = applicationRepository.save(
@@ -51,10 +44,10 @@ public class RepositoryServiceImpl implements RepositoryService {
         return savedApplication.getApplicationId();
     }
 
-    @Override
-    public void offer(LoanOfferDTO loanOffer) {
-        Application application = getApplicationById(loanOffer.getApplicationId());
 
+    @Override
+    public void validationOfOffer(LoanOfferDTO loanOffer) {
+        Application application = getApplicationById(loanOffer.getApplicationId());
         if (!application.getLoanOffers().contains(loanOffer)) {
             application.setApplicationStatus(ApplicationStatus.CLIENT_DENIED);
             application.getStatusHistory().add(
@@ -63,7 +56,11 @@ public class RepositoryServiceImpl implements RepositoryService {
             applicationRepository.save(application);
             throw new OfferDoesNotExistException("Selected offer does not exist.");
         }
+    }
 
+    @Override
+    public void offer(LoanOfferDTO loanOffer) {
+        Application application = getApplicationById(loanOffer.getApplicationId());
         application.setAppliedOffer(loanOffer);
         application.setApplicationStatus(ApplicationStatus.APPROVED);
         application.getStatusHistory().add(
@@ -160,5 +157,12 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Override
     public ApplicationStatus getApplicationStatus(Long applicationId) {
         return getApplicationById(applicationId).getApplicationStatus();
+    }
+
+    @Override
+    public void setSignDate(Long applicationId) {
+        Application application = getApplicationById(applicationId);
+        application.setSignDate(LocalDateTime.now());
+        applicationRepository.save(application);
     }
 }

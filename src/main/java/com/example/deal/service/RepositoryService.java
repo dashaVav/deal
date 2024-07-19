@@ -9,8 +9,11 @@ import java.util.List;
 
 public interface RepositoryService {
     @Transactional
-    Long createLoanOffers(LoanApplicationRequestDTO loanApplicationRequest);
+    Long createApplicationWithClient(LoanApplicationRequestDTO loanApplicationRequest);
 
+    void validationOfOffer(LoanOfferDTO loanOffer);
+
+    @Transactional
     void offer(LoanOfferDTO loanOffer);
 
     @Transactional
@@ -27,13 +30,15 @@ public interface RepositoryService {
 
     List<Application> getAllApplications();
 
+    @Transactional
     void setSesCode(Long applicationId, String seCode);
 
     String getSesCode(Long applicationId);
 
     @Transactional
-    void setCreationDate(Long applicationId);
+    void setSignDate(Long applicationId);
 
+    @Transactional
     void saveLoanOffers(Long applicationId, List<LoanOfferDTO> loanOffers);
 
     ApplicationStatus getApplicationStatus(Long applicationId);

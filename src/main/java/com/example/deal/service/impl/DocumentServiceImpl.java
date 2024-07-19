@@ -7,8 +7,8 @@ import com.example.deal.exception.InvalidSesCodeException;
 import com.example.deal.exception.UnresolvedOperationException;
 import com.example.deal.model.enums.ApplicationStatus;
 import com.example.deal.service.DocumentService;
-import com.example.deal.service.RepositoryService;
 import com.example.deal.service.NotificationProducer;
+import com.example.deal.service.RepositoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +22,11 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void sendDocuments(Long applicationId) {
-        if (!(repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.CC_APPROVED)
-                || repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.PREPARE_DOCUMENTS))) {
+        ApplicationStatus applicationStatus = repositoryService.getApplicationStatus(applicationId);
+        if (!(
+                applicationStatus.equals(ApplicationStatus.CC_APPROVED)
+                        || applicationStatus.equals(ApplicationStatus.PREPARE_DOCUMENTS)
+        )) {
             throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
         }
         repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.PREPARE_DOCUMENTS);
@@ -38,7 +41,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void signDocuments(Long applicationId) {
-        if (!repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.PREPARE_DOCUMENTS)) {
+        if (!repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.DOCUMENT_CREATED)) {
             throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
         }
         repositoryService.setSesCode(applicationId, String.valueOf(UUID.randomUUID()));
@@ -70,7 +73,7 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
         repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.DOCUMENT_SIGNED);
-        repositoryService.setCreationDate(applicationId);
+        repositoryService.setSignDate(applicationId);
         repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.CREDIT_ISSUED);
         notificationProducer.produceCreditIssued(
                 new EmailMessage(
