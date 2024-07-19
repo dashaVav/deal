@@ -26,6 +26,7 @@ public class DocumentServiceImpl implements DocumentService {
         if (!(
                 applicationStatus.equals(ApplicationStatus.CC_APPROVED)
                         || applicationStatus.equals(ApplicationStatus.PREPARE_DOCUMENTS)
+                        || applicationStatus.equals(ApplicationStatus.DOCUMENT_CREATED)
         )) {
             throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
         }
