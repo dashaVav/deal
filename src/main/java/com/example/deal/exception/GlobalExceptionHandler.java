@@ -35,4 +35,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<DealException> handleBadRequestsException(RuntimeException e) {
         return handleTheException(e, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(UnresolvedOperationException.class)
+    public ResponseEntity<DealException> handleMethodNotAllowedException(UnresolvedOperationException e) {
+        return handleTheException(e, HttpStatus.METHOD_NOT_ALLOWED);
+    }
 }

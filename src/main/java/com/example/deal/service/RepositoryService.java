@@ -35,4 +35,6 @@ public interface RepositoryService {
     void setCreationDate(Long applicationId);
 
     void saveLoanOffers(Long applicationId, List<LoanOfferDTO> loanOffers);
+
+    ApplicationStatus getApplicationStatus(Long applicationId);
 }

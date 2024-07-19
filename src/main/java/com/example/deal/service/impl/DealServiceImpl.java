@@ -3,6 +3,7 @@ package com.example.deal.service.impl;
 import com.example.deal.dto.*;
 import com.example.deal.dto.enums.EmailMessageStatus;
 import com.example.deal.exception.ConveyorException;
+import com.example.deal.exception.UnresolvedOperationException;
 import com.example.deal.model.enums.ApplicationStatus;
 import com.example.deal.service.ConveyorClient;
 import com.example.deal.service.DealService;
@@ -35,6 +36,10 @@ public class DealServiceImpl implements DealService {
 
     @Override
     public void offer(LoanOfferDTO loanOffer) {
+        if (!(repositoryService.getApplicationStatus(loanOffer.getApplicationId()).equals(ApplicationStatus.PREAPPROVAL)
+                || repositoryService.getApplicationStatus(loanOffer.getApplicationId()).equals(ApplicationStatus.APPROVED))) {
+            throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
+        }
         repositoryService.offer(loanOffer);
         notificationProducer.produceFinishRegistration(
                 new EmailMessage(
@@ -47,6 +52,10 @@ public class DealServiceImpl implements DealService {
 
     @Override
     public void calculate(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId) {
+        if (!(repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.APPROVED)
+                || repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.CC_APPROVED))) {
+            throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
+        }
         ScoringDataDTO scoringData = repositoryService.getScoringData(finishRegistrationRequest, applicationId);
 
         CreditDTO credit;

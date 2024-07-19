@@ -156,4 +156,9 @@ public class RepositoryServiceImpl implements RepositoryService {
         application.setLoanOffers(loanOffers);
         applicationRepository.save(application);
     }
+
+    @Override
+    public ApplicationStatus getApplicationStatus(Long applicationId) {
+        return getApplicationById(applicationId).getApplicationStatus();
+    }
 }

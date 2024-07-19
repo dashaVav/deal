@@ -4,6 +4,7 @@ import com.example.deal.dto.EmailMessage;
 import com.example.deal.dto.SesCodeDTO;
 import com.example.deal.dto.enums.EmailMessageStatus;
 import com.example.deal.exception.InvalidSesCodeException;
+import com.example.deal.exception.UnresolvedOperationException;
 import com.example.deal.model.enums.ApplicationStatus;
 import com.example.deal.service.DocumentService;
 import com.example.deal.service.RepositoryService;
@@ -21,6 +22,10 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void sendDocuments(Long applicationId) {
+        if (!(repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.CC_APPROVED)
+                || repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.PREPARE_DOCUMENTS))) {
+            throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
+        }
         repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.PREPARE_DOCUMENTS);
         notificationProducer.produceSendDocuments(
                 new EmailMessage(
@@ -33,6 +38,9 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void signDocuments(Long applicationId) {
+        if (!repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.PREPARE_DOCUMENTS)) {
+            throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
+        }
         repositoryService.setSesCode(applicationId, String.valueOf(UUID.randomUUID()));
         notificationProducer.produceSendSes(
                 new EmailMessage(
@@ -45,6 +53,10 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void verifyDocuments(Long applicationId, SesCodeDTO sesCode) {
+        if (!repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.DOCUMENT_CREATED)) {
+            throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
+        }
+
         if (!sesCode.getCode().equals(repositoryService.getSesCode(applicationId))) {
             repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.CLIENT_DENIED);
             notificationProducer.produceApplicationDenied(
