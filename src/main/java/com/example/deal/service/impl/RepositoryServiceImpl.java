@@ -3,9 +3,7 @@ package com.example.deal.service.impl;
 import com.example.deal.dto.*;
 import com.example.deal.exception.ApplicationNotFoundException;
 import com.example.deal.exception.OfferDoesNotExistException;
-import com.example.deal.mapper.ClientMapper;
-import com.example.deal.mapper.CreditMapper;
-import com.example.deal.mapper.ScoringDataDTOMapper;
+import com.example.deal.mapper.CustomConversionService;
 import com.example.deal.model.Application;
 import com.example.deal.model.ApplicationStatusHistory;
 import com.example.deal.model.Client;
@@ -27,10 +25,11 @@ import java.util.List;
 public class RepositoryServiceImpl implements RepositoryService {
     private final JpaClientRepository clientRepository;
     private final JpaApplicationRepository applicationRepository;
+    private final CustomConversionService conversionService;
 
     @Override
     public Long createApplicationWithClient(LoanApplicationRequestDTO loanApplicationRequest) {
-        Client savedClient = clientRepository.save(ClientMapper.INSTANCE.from(loanApplicationRequest));
+        Client savedClient = clientRepository.save(conversionService.convert(loanApplicationRequest, Client.class));
 
         Application savedApplication = applicationRepository.save(
                 Application.builder()
@@ -73,9 +72,10 @@ public class RepositoryServiceImpl implements RepositoryService {
     public void calculate(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId, CreditDTO creditDTO) {
         Application application = getApplicationById(applicationId);
 
-        application.setClient(ClientMapper.INSTANCE.from(application.getClient(), finishRegistrationRequest));
+        application.setClient(conversionService.convert(application.getClient(), finishRegistrationRequest));
 
-        Credit credit = CreditMapper.INSTANCE.from(creditDTO);
+        Credit credit = conversionService.convert(creditDTO, Credit.class);
+
         credit.setCreditStatus(CreditStatus.CALCULATED);
         application.setCredit(credit);
 
@@ -90,7 +90,7 @@ public class RepositoryServiceImpl implements RepositoryService {
     public ScoringDataDTO getScoringData(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId) {
         Application application = getApplicationById(applicationId);
 
-        return ScoringDataDTOMapper.INSTANCE.from(
+        return conversionService.convert(
                 application.getClient(),
                 finishRegistrationRequest,
                 application.getAppliedOffer()

@@ -34,7 +34,7 @@ springdoc:
 
 feign-client:
   conveyor-client:
-    base-url: http://localhost:8091
+    base-url: http://localhost:8080
     offers-path: /conveyor/offers
     calculation-path: /conveyor/calculation
     retryer:

@@ -24,5 +24,5 @@ public interface ScoringDataDTOMapper {
             @Mapping(target = "passportIssueBranch", source = "request.passportIssueBranch"),
             @Mapping(target = "amount", source = "loanOffer.requestedAmount")
     })
-    ScoringDataDTO from(Client client, FinishRegistrationRequestDTO request, LoanOfferDTO loanOffer);
+    ScoringDataDTO convert(Client client, FinishRegistrationRequestDTO request, LoanOfferDTO loanOffer);
 }

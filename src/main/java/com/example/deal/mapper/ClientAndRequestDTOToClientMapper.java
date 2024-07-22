@@ -1,7 +1,6 @@
 package com.example.deal.mapper;
 
 import com.example.deal.dto.FinishRegistrationRequestDTO;
-import com.example.deal.dto.LoanApplicationRequestDTO;
 import com.example.deal.model.Client;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
@@ -10,14 +9,9 @@ import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
-public interface ClientMapper {
-    ClientMapper INSTANCE = Mappers.getMapper(ClientMapper.class);
-
-    @Mappings({
-            @Mapping(target = "passport.series", source = "passportSeries"),
-            @Mapping(target = "passport.number", source = "passportNumber")
-    })
-    Client from(LoanApplicationRequestDTO dto);
+public interface ClientAndRequestDTOToClientMapper {
+    ClientAndRequestDTOToClientMapper INSTANCE =
+            Mappers.getMapper(ClientAndRequestDTOToClientMapper.class);
 
     @Mappings({
             @Mapping(target = "gender", source = "request.gender"),
@@ -30,5 +24,5 @@ public interface ClientMapper {
             @Mapping(target = "passport.issueDate", source = "request.passportIssueDate"),
             @Mapping(target = "passport.issueBranch", source = "request.passportIssueBranch")
     })
-    Client from(Client sourceClient, FinishRegistrationRequestDTO request);
+    Client convert(Client sourceClient, FinishRegistrationRequestDTO request);
 }
