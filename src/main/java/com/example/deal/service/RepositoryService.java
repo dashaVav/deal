@@ -11,7 +11,7 @@ public interface RepositoryService {
     @Transactional
     Long createApplicationWithClient(LoanApplicationRequestDTO loanApplicationRequest);
 
-    void validationOfOffer(LoanOfferDTO loanOffer);
+    void validateOffer(LoanOfferDTO loanOffer);
 
     @Transactional
     void offer(LoanOfferDTO loanOffer);
@@ -26,7 +26,7 @@ public interface RepositoryService {
     Application getApplicationById(Long applicationId);
 
     @Transactional
-    void updateApplicationStatus(Long applicationId, ApplicationStatus applicationStatus);
+    void setApplicationStatus(Long applicationId, ApplicationStatus applicationStatus);
 
     List<Application> getAllApplications();
 

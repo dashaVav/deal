@@ -45,26 +45,27 @@ public class RepositoryServiceImpl implements RepositoryService {
 
 
     @Override
-    public void validationOfOffer(LoanOfferDTO loanOffer) {
+    public void validateOffer(LoanOfferDTO loanOffer) {
         Application application = getApplicationById(loanOffer.getApplicationId());
         if (!application.getLoanOffers().contains(loanOffer)) {
-            application.setApplicationStatus(ApplicationStatus.CLIENT_DENIED);
-            application.getStatusHistory().add(
-                    initApplicationStatusHistoryDTO(application.getApplicationStatus())
-            );
+            updateApplicationStatusAndHistory(application, ApplicationStatus.CLIENT_DENIED);
             applicationRepository.save(application);
             throw new OfferDoesNotExistException("Selected offer does not exist.");
         }
+    }
+
+    private void updateApplicationStatusAndHistory(Application application, ApplicationStatus applicationStatus) {
+        application.setApplicationStatus(applicationStatus);
+        application.getStatusHistory().add(
+                initApplicationStatusHistoryDTO(application.getApplicationStatus())
+        );
     }
 
     @Override
     public void offer(LoanOfferDTO loanOffer) {
         Application application = getApplicationById(loanOffer.getApplicationId());
         application.setAppliedOffer(loanOffer);
-        application.setApplicationStatus(ApplicationStatus.APPROVED);
-        application.getStatusHistory().add(
-                initApplicationStatusHistoryDTO(application.getApplicationStatus())
-        );
+        updateApplicationStatusAndHistory(application, ApplicationStatus.APPROVED);
         applicationRepository.save(application);
     }
 
@@ -79,10 +80,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         credit.setCreditStatus(CreditStatus.CALCULATED);
         application.setCredit(credit);
 
-        application.setApplicationStatus(ApplicationStatus.CC_APPROVED);
-        application.getStatusHistory().add(
-                initApplicationStatusHistoryDTO(application.getApplicationStatus())
-        );
+        updateApplicationStatusAndHistory(application, ApplicationStatus.CC_APPROVED);
         applicationRepository.save(application);
     }
 
@@ -119,13 +117,9 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    public void updateApplicationStatus(Long applicationId, ApplicationStatus applicationStatus) {
+    public void setApplicationStatus(Long applicationId, ApplicationStatus applicationStatus) {
         Application application = getApplicationById(applicationId);
-        application.setApplicationStatus(applicationStatus);
-        application.getStatusHistory().add(
-                initApplicationStatusHistoryDTO(application.getApplicationStatus())
-        );
-
+        updateApplicationStatusAndHistory(application, applicationStatus);
         applicationRepository.save(application);
     }
 

@@ -30,7 +30,7 @@ public class DocumentServiceImpl implements DocumentService {
         )) {
             throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
         }
-        repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.PREPARE_DOCUMENTS);
+        repositoryService.setApplicationStatus(applicationId, ApplicationStatus.PREPARE_DOCUMENTS);
         notificationProducer.produceSendDocuments(
                 new EmailMessage(
                         repositoryService.getEmailAddressByApplicationId(applicationId),
@@ -62,7 +62,7 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
         if (!sesCode.getCode().equals(repositoryService.getSesCode(applicationId))) {
-            repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.CLIENT_DENIED);
+            repositoryService.setApplicationStatus(applicationId, ApplicationStatus.CLIENT_DENIED);
             notificationProducer.produceApplicationDenied(
                     new EmailMessage(
                             repositoryService.getEmailAddressByApplicationId(applicationId),
@@ -73,9 +73,9 @@ public class DocumentServiceImpl implements DocumentService {
             throw new InvalidSesCodeException("Invalid ses code.");
         }
 
-        repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.DOCUMENT_SIGNED);
+        repositoryService.setApplicationStatus(applicationId, ApplicationStatus.DOCUMENT_SIGNED);
         repositoryService.setSignDate(applicationId);
-        repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.CREDIT_ISSUED);
+        repositoryService.setApplicationStatus(applicationId, ApplicationStatus.CREDIT_ISSUED);
         notificationProducer.produceCreditIssued(
                 new EmailMessage(
                         repositoryService.getEmailAddressByApplicationId(applicationId),

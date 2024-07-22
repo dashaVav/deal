@@ -17,7 +17,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void updateApplicationStatusDocCreated(Long applicationId) {
-        repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.DOCUMENT_CREATED);
+        repositoryService.setApplicationStatus(applicationId, ApplicationStatus.DOCUMENT_CREATED);
     }
 
     @Override

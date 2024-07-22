@@ -45,7 +45,7 @@ public class DealServiceImpl implements DealService {
         )) {
             throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
         }
-        repositoryService.validationOfOffer(loanOffer);
+        repositoryService.validateOffer(loanOffer);
         repositoryService.offer(loanOffer);
 
         notificationProducer.produceFinishRegistration(
@@ -73,7 +73,7 @@ public class DealServiceImpl implements DealService {
             credit = conveyorClient.calculation(scoringData);
         } catch (ConveyorException e) {
             if (e.getStatus() == 403) {
-                repositoryService.updateApplicationStatus(applicationId, ApplicationStatus.CC_DENIED);
+                repositoryService.setApplicationStatus(applicationId, ApplicationStatus.CC_DENIED);
                 notificationProducer.produceApplicationDenied(
                         new EmailMessage(
                                 repositoryService.getEmailAddressByApplicationId(applicationId),
