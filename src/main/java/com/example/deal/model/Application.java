@@ -4,6 +4,7 @@ import com.example.deal.dto.LoanOfferDTO;
 import com.example.deal.model.enums.ApplicationStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -14,7 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "application")
 @Data
-@Builder
+@Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"client", "credit"})

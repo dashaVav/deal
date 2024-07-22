@@ -32,12 +32,11 @@ public class RepositoryServiceImpl implements RepositoryService {
         Client savedClient = clientRepository.save(conversionService.convert(loanApplicationRequest, Client.class));
 
         Application savedApplication = applicationRepository.save(
-                Application.builder()
-                        .client(savedClient)
-                        .applicationStatus(ApplicationStatus.PREAPPROVAL)
-                        .creationDate(LocalDateTime.now())
-                        .statusHistory(List.of(initApplicationStatusHistoryDTO(ApplicationStatus.PREAPPROVAL)))
-                        .build()
+                new Application()
+                        .setClient(savedClient)
+                        .setApplicationStatus(ApplicationStatus.PREAPPROVAL)
+                        .setCreationDate(LocalDateTime.now())
+                        .setStatusHistory(List.of(initApplicationStatusHistoryDTO(ApplicationStatus.PREAPPROVAL)))
         );
 
         return savedApplication.getApplicationId();
@@ -102,12 +101,10 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     private ApplicationStatusHistory initApplicationStatusHistoryDTO(ApplicationStatus applicationStatus) {
-        return ApplicationStatusHistory
-                .builder()
-                .applicationStatus(applicationStatus)
-                .time(LocalDateTime.now())
-                .changeType(StatusHistory.AUTOMATIC)
-                .build();
+        return new ApplicationStatusHistory()
+                .setApplicationStatus(applicationStatus)
+                .setTime(LocalDateTime.now())
+                .setChangeType(StatusHistory.AUTOMATIC);
     }
 
     @Override
