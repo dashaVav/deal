@@ -3,7 +3,7 @@ package com.example.deal.service.impl;
 import com.example.deal.dto.*;
 import com.example.deal.exception.ApplicationNotFoundException;
 import com.example.deal.exception.OfferDoesNotExistException;
-import com.example.deal.mapper.CustomConversionService;
+import com.example.deal.mapper.MergeClientService;
 import com.example.deal.model.Application;
 import com.example.deal.model.ApplicationStatusHistory;
 import com.example.deal.model.Client;
@@ -15,22 +15,26 @@ import com.example.deal.repository.JpaApplicationRepository;
 import com.example.deal.repository.JpaClientRepository;
 import com.example.deal.service.RepositoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class RepositoryServiceImpl implements RepositoryService {
     private final JpaClientRepository clientRepository;
     private final JpaApplicationRepository applicationRepository;
-    private final CustomConversionService conversionService;
+    private final ConversionService conversionService;
+    private final MergeClientService mergeClientService;
 
     @Override
     public Long createApplicationWithClient(LoanApplicationRequestDTO loanApplicationRequest) {
-        Client savedClient = clientRepository.save(conversionService.convert(loanApplicationRequest, Client.class));
-
+        Client savedClient = clientRepository.save(
+                Objects.requireNonNull(conversionService.convert(loanApplicationRequest, Client.class))
+        );
         Application savedApplication = applicationRepository.save(
                 new Application()
                         .setClient(savedClient)
@@ -69,13 +73,18 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
+    public void saveClientAdditionalInfo(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId) {
+        Application application = getApplicationById(applicationId);
+        application.setClient(mergeClientService.mergeClient(application.getClient(),
+                conversionService.convert(finishRegistrationRequest, Client.class)));
+        applicationRepository.save(application);
+    }
+
+    @Override
     public void calculate(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId, CreditDTO creditDTO) {
         Application application = getApplicationById(applicationId);
 
-        application.setClient(conversionService.convert(application.getClient(), finishRegistrationRequest));
-
         Credit credit = conversionService.convert(creditDTO, Credit.class);
-
         credit.setCreditStatus(CreditStatus.CALCULATED);
         application.setCredit(credit);
 
@@ -86,12 +95,13 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Override
     public ScoringDataDTO getScoringData(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId) {
         Application application = getApplicationById(applicationId);
-
-        return conversionService.convert(
-                application.getClient(),
-                finishRegistrationRequest,
-                application.getAppliedOffer()
-        );
+        ScoringDataDTO scoringDataDTO = conversionService.convert(application.getClient(), ScoringDataDTO.class);
+        LoanOfferDTO appliedOffer = application.getAppliedOffer();
+        scoringDataDTO.setAmount(appliedOffer.getRequestedAmount());
+        scoringDataDTO.setTerm(appliedOffer.getTerm());
+        scoringDataDTO.setIsInsuranceEnabled(appliedOffer.getIsInsuranceEnabled());
+        scoringDataDTO.setIsSalaryClient(appliedOffer.getIsSalaryClient());
+        return scoringDataDTO;
     }
 
     @Override

@@ -5,14 +5,11 @@ import com.example.deal.model.Client;
 import org.jetbrains.annotations.NotNull;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.springframework.core.convert.converter.Converter;
 
 @Mapper(componentModel = "spring")
 public interface FinishRegistrationRequestDTOToClient extends Converter<FinishRegistrationRequestDTO, Client> {
-    @Mappings({
-            @Mapping(target = "passport.issueDate", source = "passportIssueDate"),
-            @Mapping(target = "passport.issueBranch", source = "passportIssueBranch")
-    })
+    @Mapping(target = "passport.issueDate", source = "passportIssueDate")
+    @Mapping(target = "passport.issueBranch", source = "passportIssueBranch")
     Client convert(@NotNull FinishRegistrationRequestDTO request);
 }

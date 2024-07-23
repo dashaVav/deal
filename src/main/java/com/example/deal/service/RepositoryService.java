@@ -16,6 +16,8 @@ public interface RepositoryService {
     @Transactional
     void offer(LoanOfferDTO loanOffer);
 
+    void saveClientAdditionalInfo(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId);
+
     @Transactional
     void calculate(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId, CreditDTO creditDTO);
 

@@ -67,7 +67,9 @@ public class DealServiceImpl implements DealService {
             throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
         }
 
+        repositoryService.saveClientAdditionalInfo(finishRegistrationRequest, applicationId);
         ScoringDataDTO scoringData = repositoryService.getScoringData(finishRegistrationRequest, applicationId);
+
         CreditDTO credit;
         try {
             credit = conveyorClient.calculation(scoringData);
