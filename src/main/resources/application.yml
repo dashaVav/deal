@@ -1,6 +1,35 @@
 spring:
   application:
     name: deal
+  datasource:
+    url: jdbc:postgresql://localhost:5432/deal
+    username: deal_worker
+    password: deal_worker
+  liquibase:
+    enabled: false
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: validate
+        format_sql: true
+    database: postgresql
+
 
 server:
-  port: 8091
+  port: 8092
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+
+feign-client:
+  conveyor-client:
+    base-url: http://localhost:8091
+    offers-path: /conveyor/offers
+    calculation-path: /conveyor/calculation
+    retryer:
+      period: 100
+      max-period: 10000
+      max-attempts: 2
