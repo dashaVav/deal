@@ -66,6 +66,10 @@ services:
       - zookeeper
     networks:
       - backend
+  conveyor:
+    image: ghcr.io/dashavav/conveyor:latest
+    ports:
+      - "8091:8091"
 
 volumes:
   postgresql: { }
