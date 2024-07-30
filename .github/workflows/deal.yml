@@ -42,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonarqube \
+        run: ./gradlew check sonar:sonar \
           -Dsonar.projectKey=dashaVav_deal \
           -Dsonar.organization=dashavav \
           -Dsonar.host.url=https://sonarcloud.io \
