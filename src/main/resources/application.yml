@@ -2,7 +2,7 @@ spring:
   application:
     name: deal
   datasource:
-    url: jdbc:postgresql://localhost:5432/deal
+    url: jdbc:postgresql://postgresql:5432/deal
     username: deal_worker
     password: deal_worker
   liquibase:

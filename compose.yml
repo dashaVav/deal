@@ -66,10 +66,65 @@ services:
       - zookeeper
     networks:
       - backend
+
   conveyor:
     image: ghcr.io/dashavav/conveyor:latest
     ports:
       - "8091:8091"
+
+  deal:
+    image: ghcr.io/dashavav/deal:latest
+    ports:
+      - "8092:8092"
+    depends_on:
+      - postgresql
+    networks:
+      - backend
+
+  application:
+    image: ghcr.io/dashavav/application:latest
+    ports:
+      - "8093:8093"
+    depends_on:
+      - deal
+    networks:
+      - backend
+
+  dossier:
+    image: ghcr.io/dashavav/dossier:latest
+    environment:
+      MAIL_PASSWORD: kpi-Epj-R3U-zbU
+      MAIL_USERNAME: credit_conveyor@rambler.ru
+    ports:
+      - "8094:8094"
+    depends_on:
+      - kafka
+    networks:
+      - backend
+
+  api-gateway:
+    image: ghcr.io/dashavav/api-gateway:latest
+    ports:
+      - "8095:8095"
+    depends_on:
+      - deal
+      - application
+    networks:
+      - backend
+  deal1:
+    build:
+      context: .
+      dockerfile: deal.Dockerfile
+    ports:
+      - "8092:8092" # Пример порта, если ваше приложение слушает на 8092
+    depends_on:
+      - postgresql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/deal
+      SPRING_DATASOURCE_USERNAME: deal_worker
+      SPRING_DATASOURCE_PASSWORD: deal_worker
+    networks:
+      - backend
 
 volumes:
   postgresql: { }
