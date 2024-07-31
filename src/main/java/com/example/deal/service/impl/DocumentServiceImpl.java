@@ -20,6 +20,8 @@ public class DocumentServiceImpl implements DocumentService {
     private final RepositoryService repositoryService;
     private final NotificationProducer notificationProducer;
 
+    private static final String UNRESOLVED_OPERATION = "The operation is performed in the wrong sequence";
+
     @Override
     public void sendDocuments(Long applicationId) {
         ApplicationStatus applicationStatus = repositoryService.getApplicationStatus(applicationId);
@@ -28,7 +30,7 @@ public class DocumentServiceImpl implements DocumentService {
                         || applicationStatus.equals(ApplicationStatus.PREPARE_DOCUMENTS)
                         || applicationStatus.equals(ApplicationStatus.DOCUMENT_CREATED)
         )) {
-            throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
+            throw new UnresolvedOperationException(UNRESOLVED_OPERATION);
         }
         repositoryService.setApplicationStatus(applicationId, ApplicationStatus.PREPARE_DOCUMENTS);
         notificationProducer.produceSendDocuments(
@@ -43,7 +45,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public void signDocuments(Long applicationId) {
         if (!repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.DOCUMENT_CREATED)) {
-            throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
+            throw new UnresolvedOperationException(UNRESOLVED_OPERATION);
         }
         repositoryService.setSesCode(applicationId, String.valueOf(UUID.randomUUID()));
         notificationProducer.produceSendSes(
@@ -58,7 +60,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public void verifyDocuments(Long applicationId, SesCodeDTO sesCode) {
         if (!repositoryService.getApplicationStatus(applicationId).equals(ApplicationStatus.DOCUMENT_CREATED)) {
-            throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
+            throw new UnresolvedOperationException(UNRESOLVED_OPERATION);
         }
 
         if (!sesCode.getCode().equals(repositoryService.getSesCode(applicationId))) {

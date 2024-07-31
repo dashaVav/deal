@@ -59,7 +59,6 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_CREATE_TOPICS: "finish-registration:1:1,create-documents:1:1,send-documents:1:1,send-ses:1:1,credit-issued:1:1,application-denied:1:1"
-
     volumes:
       - kafka_data:/var/lib/kafka
     depends_on:
@@ -78,29 +77,23 @@ services:
       - "8092:8092"
     depends_on:
       - postgresql
-    networks:
-      - backend
+
 
   application:
     image: ghcr.io/dashavav/application:latest
     ports:
       - "8093:8093"
-    depends_on:
-      - deal
-    networks:
-      - backend
+
 
   dossier:
     image: ghcr.io/dashavav/dossier:latest
     environment:
-      MAIL_PASSWORD: kpi-Epj-R3U-zbU
+      MAIL_PASSWORD: VNw-NaC-Fzv-BY1
       MAIL_USERNAME: credit_conveyor@rambler.ru
     ports:
       - "8094:8094"
     depends_on:
       - kafka
-    networks:
-      - backend
 
   api-gateway:
     image: ghcr.io/dashavav/api-gateway:latest
@@ -109,20 +102,6 @@ services:
     depends_on:
       - deal
       - application
-    networks:
-      - backend
-  deal1:
-    build:
-      context: .
-      dockerfile: deal.Dockerfile
-    ports:
-      - "8092:8092" # Пример порта, если ваше приложение слушает на 8092
-    depends_on:
-      - postgresql
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/deal
-      SPRING_DATASOURCE_USERNAME: deal_worker
-      SPRING_DATASOURCE_PASSWORD: deal_worker
     networks:
       - backend
 
