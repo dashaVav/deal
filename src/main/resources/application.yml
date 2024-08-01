@@ -16,7 +16,7 @@ spring:
         format_sql: true
     database: postgresql
   kafka:
-    bootstrap-servers: localhost:29091
+    bootstrap-servers: kafka:9091
     topic:
       finish-registration: finish-registration
       create-documents: create-documents
