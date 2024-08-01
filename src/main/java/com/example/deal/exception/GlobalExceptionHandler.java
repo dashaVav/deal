@@ -6,11 +6,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.net.ConnectException;
+import java.util.Arrays;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
     private ResponseEntity<DealException> handleTheException(RuntimeException e, HttpStatus status) {
-        System.out.println(e.getStackTrace());
+        System.out.println(Arrays.toString(e.getStackTrace()));
         return new ResponseEntity<>(
                 new DealException(e.getMessage(), status.value()),
                 status
