@@ -10,6 +10,7 @@ import java.net.ConnectException;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     private ResponseEntity<DealException> handleTheException(RuntimeException e, HttpStatus status) {
+        System.out.println(e.getStackTrace());
         return new ResponseEntity<>(
                 new DealException(e.getMessage(), status.value()),
                 status
