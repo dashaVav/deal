@@ -44,10 +44,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         uses: SonarSource/sonarcloud-github-action@v2.3.0
         with:
-          projectBaseDir: deal
           args: >
             -Dsonar.organization=dashavav
             -Dsonar.projectKey=dashaVav_deal
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=$SONAR_TOKEN
 
 #      - name: Analyze with SonarCloud
 #        env:
