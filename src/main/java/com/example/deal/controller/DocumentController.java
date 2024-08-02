@@ -1,6 +1,7 @@
 package com.example.deal.controller;
 
 import com.example.deal.dto.SesCodeDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,6 @@ public interface DocumentController {
     ResponseEntity<Void> sign(@PathVariable Long applicationId);
 
     @PostMapping(path = "/{applicationId}/code")
-    ResponseEntity<Void> code(@PathVariable Long applicationId, @RequestBody SesCodeDTO sesCode);
+    ResponseEntity<Void> code(@PathVariable Long applicationId, @Valid @RequestBody SesCodeDTO sesCode);
 
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class DealException {
+public class DealError {
     private String error;
     private Integer status;
 }

@@ -21,6 +21,7 @@ public class DealServiceImpl implements DealService {
     private final RepositoryService repositoryService;
     private final ConveyorClient conveyorClient;
     private final NotificationProducer notificationProducer;
+    private final static String UNRESOLVED_OPERATION_MESSAGE = "The operation is performed in the wrong sequence";
 
     @Override
     @Transactional
@@ -43,7 +44,7 @@ public class DealServiceImpl implements DealService {
                 applicationStatus.equals(ApplicationStatus.PREAPPROVAL)
                         || applicationStatus.equals(ApplicationStatus.APPROVED)
         )) {
-            throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
+            throw new UnresolvedOperationException(UNRESOLVED_OPERATION_MESSAGE);
         }
         repositoryService.validateOffer(loanOffer);
         repositoryService.offer(loanOffer);
@@ -64,7 +65,7 @@ public class DealServiceImpl implements DealService {
                 applicationStatus.equals(ApplicationStatus.APPROVED)
                         || applicationStatus.equals(ApplicationStatus.CC_APPROVED)
         )) {
-            throw new UnresolvedOperationException("The operation is performed in the wrong sequence.");
+            throw new UnresolvedOperationException(UNRESOLVED_OPERATION_MESSAGE);
         }
 
         repositoryService.saveClientAdditionalInfo(finishRegistrationRequest, applicationId);
