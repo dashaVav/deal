@@ -6,8 +6,8 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_DB: deal
-      POSTGRES_USER: deal_worker
-      POSTGRES_PASSWORD: deal_worker
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgresql:/var/lib/postgresql/data
     networks:
@@ -21,8 +21,8 @@ services:
       - --changelog-file=master.xml
       - --driver=org.postgresql.Driver
       - --url=jdbc:postgresql://postgresql:5432/deal
-      - --username=deal_worker
-      - --password=deal_worker
+      - --username=${POSTGRES_USER}
+      - --password=${POSTGRES_PASSWORD}
       - update
     volumes:
       - ./src/main/resources/migrations:/liquibase/changelog
@@ -69,30 +69,42 @@ services:
 
   conveyor:
     image: ghcr.io/dashavav/conveyor:latest
+    container_name: conveyor
     ports:
       - "8091:8091"
+    networks:
+      - backend
 
   deal:
     image: ghcr.io/dashavav/deal:latest
+    container_name: deal
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "8092:8092"
     depends_on:
       - postgresql
+      - kafka
     networks:
       - backend
 
 
   application:
     image: ghcr.io/dashavav/application:latest
+    container_name: application
     ports:
       - "8093:8093"
+    networks:
+      - backend
 
 
   dossier:
     image: ghcr.io/dashavav/dossier:latest
+    container_name: dossier
     environment:
-      MAIL_PASSWORD: bbb-JFb-9d4-aRH
-      MAIL_USERNAME: credit_conveyor@rambler.ru
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_USERNAME: ${MAIL_USERNAME}
     ports:
       - "8094:8094"
     depends_on:
@@ -102,11 +114,9 @@ services:
 
   api-gateway:
     image: ghcr.io/dashavav/api-gateway:latest
+    container_name: api-gateway
     ports:
       - "8095:8095"
-    depends_on:
-      - deal
-      - application
     networks:
       - backend
 
@@ -116,4 +126,5 @@ volumes:
   kafka_data: { }
 
 networks:
-  backend: { }
+  backend:
+    external: true

@@ -3,8 +3,8 @@ spring:
     name: deal
   datasource:
     url: jdbc:postgresql://postgresql:5432/deal
-    username: deal_worker
-    password: deal_worker
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
   liquibase:
     enabled: false
   jpa:
