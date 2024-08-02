@@ -39,11 +39,13 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Analyze with SonarCloud
-        uses: jinguji/sonarcloud-gradle-github-action@v2
+        uses: SonarSource/sonarcloud-github-action@v2.3.0
         with:
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          projectBaseDir: deal
+          args: >
+            -Dsonar.organization=dashavav
+            -Dsonar.projectKey=dashaVav_deal
+
 #      - name: Analyze with SonarCloud
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
