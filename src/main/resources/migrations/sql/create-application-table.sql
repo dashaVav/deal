@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS application
     status VARCHAR,
     creation_date TIMESTAMP,
     applied_offer JSONB,
+    loan_offers JSONB,
     sign_date TIMESTAMP,
     ses_code VARCHAR,
     status_history JSONB,

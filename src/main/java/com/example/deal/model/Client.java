@@ -1,11 +1,10 @@
 package com.example.deal.model;
 
-import com.example.deal.dtos.EmploymentDTO;
-import com.example.deal.dtos.Gender;
-import com.example.deal.dtos.MaritalStatus;
+import com.example.deal.dto.EmploymentDTO;
+import com.example.deal.dto.enums.Gender;
+import com.example.deal.dto.enums.MaritalStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -17,7 +16,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Builder
 @Entity
 @Table(name = "client")
 public class Client {

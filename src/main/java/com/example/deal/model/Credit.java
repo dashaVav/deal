@@ -1,5 +1,6 @@
 package com.example.deal.model;
 
+import com.example.deal.model.enums.CreditStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

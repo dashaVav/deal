@@ -1,12 +1,13 @@
 services:
   postgresql:
     image: postgres:16
+    hostname: postgres
     ports:
       - "5432:5432"
     environment:
       POSTGRES_DB: deal
-      POSTGRES_USER: deal_worker
-      POSTGRES_PASSWORD: deal_worker
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgresql:/var/lib/postgresql/data
     networks:
@@ -20,15 +21,110 @@ services:
       - --changelog-file=master.xml
       - --driver=org.postgresql.Driver
       - --url=jdbc:postgresql://postgresql:5432/deal
-      - --username=deal_worker
-      - --password=deal_worker
+      - --username=${POSTGRES_USER}
+      - --password=${POSTGRES_PASSWORD}
       - update
     volumes:
       - ./src/main/resources/migrations:/liquibase/changelog
     networks:
       - backend
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper
+    networks:
+      - backend
+
+  kafka:
+    image: confluentinc/cp-kafka:7.2.1
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "29091:29091"
+    environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9091,PLAINTEXT_HOST://localhost:29091
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9091,PLAINTEXT_HOST://0.0.0.0:29091
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 1
+      BOOTSTRAP_SERVERS: kafka:9091
+      ZOOKEEPER: zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_CREATE_TOPICS: "finish-registration:1:1,create-documents:1:1,send-documents:1:1,send-ses:1:1,credit-issued:1:1,application-denied:1:1"
+    volumes:
+      - kafka_data:/var/lib/kafka
+    depends_on:
+      - zookeeper
+    networks:
+      - backend
+
+  conveyor:
+    image: ghcr.io/dashavav/conveyor:latest
+    container_name: conveyor
+    ports:
+      - "8091:8091"
+    networks:
+      - backend
+
+  deal:
+    image: ghcr.io/dashavav/deal:latest
+    container_name: deal
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8092:8092"
+    depends_on:
+      - postgresql
+      - kafka
+    networks:
+      - backend
+
+
+  application:
+    image: ghcr.io/dashavav/application:latest
+    container_name: application
+    ports:
+      - "8093:8093"
+    networks:
+      - backend
+
+
+  dossier:
+    image: ghcr.io/dashavav/dossier:latest
+    container_name: dossier
+    environment:
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+    ports:
+      - "8094:8094"
+    depends_on:
+      - kafka
+    networks:
+      - backend
+
+  api-gateway:
+    image: ghcr.io/dashavav/api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "8095:8095"
+    networks:
+      - backend
+
 volumes:
   postgresql: { }
+  zookeeper_data: { }
+  kafka_data: { }
 
 networks:
-  backend: { }
+  backend:
+    external: true
