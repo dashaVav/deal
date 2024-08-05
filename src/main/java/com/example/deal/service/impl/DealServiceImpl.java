@@ -9,6 +9,7 @@ import com.example.deal.service.ConveyorClient;
 import com.example.deal.service.DealService;
 import com.example.deal.service.NotificationProducer;
 import com.example.deal.service.RepositoryService;
+import io.micrometer.core.instrument.Counter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ public class DealServiceImpl implements DealService {
     private final RepositoryService repositoryService;
     private final ConveyorClient conveyorClient;
     private final NotificationProducer notificationProducer;
+    private final Counter approvedApplicationCounter;
     private static final String UNRESOLVED_OPERATION_MESSAGE = "The operation is performed in the wrong sequence";
 
     @Override
@@ -48,6 +50,7 @@ public class DealServiceImpl implements DealService {
         }
         repositoryService.validateOffer(loanOffer);
         repositoryService.offer(loanOffer);
+        approvedApplicationCounter.increment();
 
         notificationProducer.produceFinishRegistration(
                 new EmailMessage(

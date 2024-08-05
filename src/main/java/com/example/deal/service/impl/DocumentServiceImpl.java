@@ -9,6 +9,7 @@ import com.example.deal.model.enums.ApplicationStatus;
 import com.example.deal.service.DocumentService;
 import com.example.deal.service.NotificationProducer;
 import com.example.deal.service.RepositoryService;
+import io.micrometer.core.instrument.Counter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class DocumentServiceImpl implements DocumentService {
     private final RepositoryService repositoryService;
     private final NotificationProducer notificationProducer;
+    private final Counter creditIssuedCounter;
 
     private static final String UNRESOLVED_OPERATION = "The operation is performed in the wrong sequence";
 
@@ -78,6 +80,7 @@ public class DocumentServiceImpl implements DocumentService {
         repositoryService.setApplicationStatus(applicationId, ApplicationStatus.DOCUMENT_SIGNED);
         repositoryService.setSignDate(applicationId);
         repositoryService.setApplicationStatus(applicationId, ApplicationStatus.CREDIT_ISSUED);
+        creditIssuedCounter.increment();
         notificationProducer.produceCreditIssued(
                 new EmailMessage(
                         repositoryService.getEmailAddressByApplicationId(applicationId),
