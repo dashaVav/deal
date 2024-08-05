@@ -21,7 +21,7 @@ public class DealServiceImpl implements DealService {
     private final RepositoryService repositoryService;
     private final ConveyorClient conveyorClient;
     private final NotificationProducer notificationProducer;
-    private final static String UNRESOLVED_OPERATION_MESSAGE = "The operation is performed in the wrong sequence";
+    private static final String UNRESOLVED_OPERATION_MESSAGE = "The operation is performed in the wrong sequence";
 
     @Override
     @Transactional
