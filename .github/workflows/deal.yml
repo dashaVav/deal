@@ -5,10 +5,10 @@ env:
   IMAGE_NAME: dashavav/deal
 
 on:
-  workflow_dispatch:
+  push:
+    branches: ['master']
   pull_request:
-    paths:
-      - .github/workflows/deal.yml
+    branches: ['master']
 
 jobs:
   build:
