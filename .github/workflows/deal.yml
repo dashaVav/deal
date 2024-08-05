@@ -34,39 +34,11 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Run SonarQube analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonarqube
-
       - name: Test Coverage
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Analyze with SonarCloud
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        uses: SonarSource/sonarcloud-github-action@v2.3.0
-        with:
-          args: >
-            -Dsonar.organization=dashavav
-            -Dsonar.projectKey=dashaVav_deal
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=$SONAR_TOKEN
-            -X
-          
 
-#      - name: Analyze with SonarCloud
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#        run: ./gradlew check sonar:sonar \
-#          -Dsonar.projectKey=dashaVav_deal \
-#          -Dsonar.organization=dashavav \
-#          -Dsonar.host.url=https://sonarcloud.io \
-#          -Dsonar.login=$SONAR_TOKEN \
-#          -Dsonar.coverage.jacoco.xmlReportPaths=./build/reports/jacoco/test/jacocoTestReport.xml
       - name: Docker image build
         run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} -f ${{ github.workspace }}/deal.Dockerfile ${{ github.workspace }}
 
