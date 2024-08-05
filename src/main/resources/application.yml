@@ -41,3 +41,23 @@ feign-client:
       period: 100
       max-period: 10000
       max-attempts: 2
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+    tags:
+      application: ${spring.application.name}
+    approved-application:
+      name: approved-application-count
+    credit-issues:
+      name: credit-issued-count
+  prometheus:
+    metrics:
+      export:
+        enabled: true
