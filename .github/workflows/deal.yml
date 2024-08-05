@@ -34,6 +34,11 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+      - name: Run SonarQube analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew sonarqube
+
       - name: Test Coverage
         uses: codecov/codecov-action@v1
         with:
@@ -49,6 +54,8 @@ jobs:
             -Dsonar.projectKey=dashaVav_deal
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.login=$SONAR_TOKEN
+            -X
+          
 
 #      - name: Analyze with SonarCloud
 #        env:
