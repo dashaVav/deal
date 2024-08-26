@@ -1,40 +1,35 @@
 package com.example.deal.service.impl;
 
-import com.example.deal.client.ConveyorClient;
-import com.example.deal.dtos.*;
-import com.example.deal.exception.ApplicationNotFoundException;
-import com.example.deal.mappers.ClientMapper;
-import com.example.deal.mappers.CreditMapper;
-import com.example.deal.mappers.ScoringDataDTOMapper;
-import com.example.deal.model.*;
-import com.example.deal.repository.JpaApplicationRepository;
-import com.example.deal.repository.JpaClientRepository;
+import com.example.deal.dto.*;
+import com.example.deal.dto.enums.EmailMessageStatus;
+import com.example.deal.exception.ConveyorException;
+import com.example.deal.exception.UnresolvedOperationException;
+import com.example.deal.model.enums.ApplicationStatus;
+import com.example.deal.service.ConveyorClient;
 import com.example.deal.service.DealService;
+import com.example.deal.service.NotificationProducer;
+import com.example.deal.service.RepositoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class DealServiceImpl implements DealService {
-    private final JpaClientRepository clientRepository;
-    private final JpaApplicationRepository applicationRepository;
+    private final RepositoryService repositoryService;
     private final ConveyorClient conveyorClient;
+    private final NotificationProducer notificationProducer;
+    private static final String UNRESOLVED_OPERATION_MESSAGE = "The operation is performed in the wrong sequence";
 
     @Override
+    @Transactional
     public List<LoanOfferDTO> createLoanOffers(LoanApplicationRequestDTO loanApplicationRequest) {
-        Client savedClient = clientRepository.save(ClientMapper.INSTANCE.from(loanApplicationRequest));
-
-        Application savedApplication = applicationRepository.save(
-                Application.builder()
-                        .client(savedClient)
-                        .creationDate(LocalDateTime.now())
-                        .build()
-        );
-
-        return setApplicationId(savedApplication.getApplicationId(), conveyorClient.offers(loanApplicationRequest));
+        Long applicationId = repositoryService.createApplicationWithClient(loanApplicationRequest);
+        List<LoanOfferDTO> loanOffers = setApplicationId(applicationId, conveyorClient.offers(loanApplicationRequest));
+        repositoryService.saveLoanOffers(applicationId, loanOffers);
+        return loanOffers;
     }
 
     private List<LoanOfferDTO> setApplicationId(long applicationId, List<LoanOfferDTO> loanOfferDTOS) {
@@ -44,47 +39,62 @@ public class DealServiceImpl implements DealService {
 
     @Override
     public void offer(LoanOfferDTO loanOffer) {
-        Application application = applicationRepository.findById(loanOffer.getApplicationId())
-                .orElseThrow(() -> new ApplicationNotFoundException("Application id not found."));
+        ApplicationStatus applicationStatus = repositoryService.getApplicationStatus(loanOffer.getApplicationId());
+        if (!(
+                applicationStatus.equals(ApplicationStatus.PREAPPROVAL)
+                        || applicationStatus.equals(ApplicationStatus.APPROVED)
+        )) {
+            throw new UnresolvedOperationException(UNRESOLVED_OPERATION_MESSAGE);
+        }
+        repositoryService.validateOffer(loanOffer);
+        repositoryService.offer(loanOffer);
 
-        application.setAppliedOffer(loanOffer);
-        application.setApplicationStatus(ApplicationStatus.PREAPPROVAL);
-        application.getStatusHistory().add(
-                initApplicationStatusHistoryDTO(application.getApplicationStatus())
+        notificationProducer.produceFinishRegistration(
+                new EmailMessage(
+                        repositoryService.getEmailAddressByApplicationId(loanOffer.getApplicationId()),
+                        EmailMessageStatus.FINISH_REGISTRATION,
+                        loanOffer.getApplicationId()
+                )
         );
-        applicationRepository.save(application);
     }
 
     @Override
     public void calculate(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId) {
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ApplicationNotFoundException("Application id not found."));
+        ApplicationStatus applicationStatus = repositoryService.getApplicationStatus(applicationId);
+        if (!(
+                applicationStatus.equals(ApplicationStatus.APPROVED)
+                        || applicationStatus.equals(ApplicationStatus.CC_APPROVED)
+        )) {
+            throw new UnresolvedOperationException(UNRESOLVED_OPERATION_MESSAGE);
+        }
 
-        ScoringDataDTO scoringDataDTO = ScoringDataDTOMapper.INSTANCE.from(
-                application.getClient(),
-                finishRegistrationRequest,
-                application.getAppliedOffer()
+        repositoryService.saveClientAdditionalInfo(finishRegistrationRequest, applicationId);
+        ScoringDataDTO scoringData = repositoryService.getScoringData(finishRegistrationRequest, applicationId);
+
+        CreditDTO credit;
+        try {
+            credit = conveyorClient.calculation(scoringData);
+        } catch (ConveyorException e) {
+            if (e.getStatus() == 403) {
+                repositoryService.setApplicationStatus(applicationId, ApplicationStatus.CC_DENIED);
+                notificationProducer.produceApplicationDenied(
+                        new EmailMessage(
+                                repositoryService.getEmailAddressByApplicationId(applicationId),
+                                EmailMessageStatus.APPLICATION_DENIED,
+                                applicationId
+                        )
+                );
+            }
+            throw e;
+        }
+
+        repositoryService.calculate(finishRegistrationRequest, applicationId, credit);
+        notificationProducer.produceCreateDocuments(
+                new EmailMessage(
+                        repositoryService.getEmailAddressByApplicationId(applicationId),
+                        EmailMessageStatus.CREATE_DOCUMENTS,
+                        applicationId
+                )
         );
-
-        application.setClient(ClientMapper.INSTANCE.from(application.getClient(), finishRegistrationRequest));
-
-        Credit credit = CreditMapper.INSTANCE.from(conveyorClient.calculation(scoringDataDTO));
-        credit.setCreditStatus(CreditStatus.CALCULATED);
-        application.setCredit(credit);
-
-        application.setApplicationStatus(ApplicationStatus.APPROVED);
-        application.getStatusHistory().add(
-                initApplicationStatusHistoryDTO(application.getApplicationStatus())
-        );
-        applicationRepository.save(application);
-    }
-
-    private ApplicationStatusHistory initApplicationStatusHistoryDTO(ApplicationStatus applicationStatus) {
-        return ApplicationStatusHistory
-                .builder()
-                .applicationStatus(applicationStatus)
-                .time(LocalDateTime.now())
-                .changeType(StatusHistory.AUTOMATIC)
-                .build();
     }
 }

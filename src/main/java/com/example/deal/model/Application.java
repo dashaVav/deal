@@ -1,8 +1,10 @@
 package com.example.deal.model;
 
-import com.example.deal.dtos.LoanOfferDTO;
+import com.example.deal.dto.LoanOfferDTO;
+import com.example.deal.model.enums.ApplicationStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -13,7 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "application")
 @Data
-@Builder
+@Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"client", "credit"})
@@ -34,6 +36,10 @@ public class Application {
     @Column(name = "applied_offer")
     @JdbcTypeCode(SqlTypes.JSON)
     private LoanOfferDTO appliedOffer;
+
+    @Column(name = "loan_offers")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<LoanOfferDTO> loanOffers;
 
     @Column(name = "sign_date")
     private LocalDateTime signDate;
