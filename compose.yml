@@ -108,13 +108,23 @@ services:
     image: ghcr.io/dashavav/deal:latest
     container_name: deal
     environment:
-      POSTGRES_USER: deal_worker
-      POSTGRES_PASSWORD: deal_worker
-    ports:
-      - "8092:8092"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       - postgresql
       - kafka
+    networks:
+      - backend
+
+  auth:
+    image: ghcr.io/dashavav/auth:latest
+    container_name: auth
+    environment:
+      AUTH_POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      AUTH_POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      TOKEN_SIGNING_KEY: ${TOKEN_SIGNING_KEY}
+    depends_on:
+      - postgresql-auth
     networks:
       - backend
 
@@ -122,8 +132,6 @@ services:
   application:
     image: ghcr.io/dashavav/application:latest
     container_name: application
-    ports:
-      - "8093:8093"
     networks:
       - backend
 
@@ -134,8 +142,6 @@ services:
     environment:
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       MAIL_USERNAME: ${MAIL_USERNAME}
-    ports:
-      - "8094:8094"
     depends_on:
       - kafka
     networks:
