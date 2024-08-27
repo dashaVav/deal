@@ -24,6 +24,7 @@ spring:
       send-ses: send-ses
       credit-issued: credit-issued
       application-denied: application-denied
+      audit: audit
 
 server:
   port: 8092

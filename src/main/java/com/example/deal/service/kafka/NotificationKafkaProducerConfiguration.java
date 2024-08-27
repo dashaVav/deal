@@ -1,5 +1,6 @@
 package com.example.deal.service.kafka;
 
+import com.example.deal.dto.AuditActionDTO;
 import com.example.deal.dto.EmailMessage;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -34,7 +35,16 @@ public class NotificationKafkaProducerConfiguration {
     }
 
     @Bean
-    public KafkaTemplate<String, EmailMessage> kafkaTemplate() {
+    public KafkaTemplate<String, EmailMessage> emailMessageKafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
+    }
+
+    private ProducerFactory<String, AuditActionDTO> auditProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(producerConfig());
+    }
+
+    @Bean
+    public KafkaTemplate<String, AuditActionDTO> auditKafkaTemplate() {
+        return new KafkaTemplate<>(auditProducerFactory());
     }
 }

@@ -1,5 +1,6 @@
 package com.example.deal.service.kafka;
 
+import com.example.deal.dto.AuditActionDTO;
 import com.example.deal.dto.EmailMessage;
 import com.example.deal.service.NotificationProducer;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class NotificationProducerImpl implements NotificationProducer {
-    private final KafkaTemplate<String, EmailMessage> kafkaProducer;
+    private final KafkaTemplate<String, EmailMessage> emailMessageKafkaTemplate;
+    private final KafkaTemplate<String, AuditActionDTO> auditActionKafkaTemplate;
 
     @Value("${spring.kafka.topic.finish-registration}")
     private String finishRegistrationTopic;
@@ -24,7 +26,7 @@ public class NotificationProducerImpl implements NotificationProducer {
 
     @Override
     public void produceFinishRegistration(EmailMessage emailMessage) {
-        kafkaProducer.send(finishRegistrationTopic, emailMessage);
+        emailMessageKafkaTemplate.send(finishRegistrationTopic, emailMessage);
         printLog(finishRegistrationTopic, emailMessage.getApplicationId());
     }
 
@@ -34,7 +36,7 @@ public class NotificationProducerImpl implements NotificationProducer {
 
     @Override
     public void produceCreateDocuments(EmailMessage emailMessage) {
-        kafkaProducer.send(createDocumentsTopic, emailMessage);
+        emailMessageKafkaTemplate.send(createDocumentsTopic, emailMessage);
         printLog(createDocumentsTopic, emailMessage.getApplicationId());
     }
 
@@ -44,7 +46,7 @@ public class NotificationProducerImpl implements NotificationProducer {
 
     @Override
     public void produceSendDocuments(EmailMessage emailMessage) {
-        kafkaProducer.send(sendDocumentsTopic, emailMessage);
+        emailMessageKafkaTemplate.send(sendDocumentsTopic, emailMessage);
         printLog(sendDocumentsTopic, emailMessage.getApplicationId());
     }
 
@@ -54,7 +56,7 @@ public class NotificationProducerImpl implements NotificationProducer {
 
     @Override
     public void produceSendSes(EmailMessage emailMessage) {
-        kafkaProducer.send(sendSesTopic, emailMessage);
+        emailMessageKafkaTemplate.send(sendSesTopic, emailMessage);
         printLog(sendSesTopic, emailMessage.getApplicationId());
     }
 
@@ -64,7 +66,7 @@ public class NotificationProducerImpl implements NotificationProducer {
 
     @Override
     public void produceCreditIssued(EmailMessage emailMessage) {
-        kafkaProducer.send(creditIssuedTopic, emailMessage);
+        emailMessageKafkaTemplate.send(creditIssuedTopic, emailMessage);
         printLog(creditIssuedTopic, emailMessage.getApplicationId());
     }
 
@@ -74,7 +76,15 @@ public class NotificationProducerImpl implements NotificationProducer {
 
     @Override
     public void produceApplicationDenied(EmailMessage emailMessage) {
-        kafkaProducer.send(applicationDeniedTopic, emailMessage);
+        emailMessageKafkaTemplate.send(applicationDeniedTopic, emailMessage);
         printLog(applicationDeniedTopic, emailMessage.getApplicationId());
+    }
+
+    @Value("${spring.kafka.topic.audit}")
+    private String auditActionTopic;
+
+    @Override
+    public void produceAuditAction(AuditActionDTO auditAction) {
+        auditActionKafkaTemplate.send(auditActionTopic, auditAction);
     }
 }

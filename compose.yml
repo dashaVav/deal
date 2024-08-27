@@ -28,6 +28,14 @@ services:
     networks:
       - backend
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redisdata:/data
+
   liquibase-migrations-deal:
     image: liquibase/liquibase:4.25
     depends_on:
@@ -90,7 +98,7 @@ services:
       ZOOKEEPER: zookeeper:2181
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_ADVERTISED_HOST_NAME: localhost
-      KAFKA_CREATE_TOPICS: "finish-registration:1:1,create-documents:1:1,send-documents:1:1,send-ses:1:1,credit-issued:1:1,application-denied:1:1"
+      KAFKA_CREATE_TOPICS: "finish-registration:1:1,create-documents:1:1,send-documents:1:1,send-ses:1:1,credit-issued:1:1,application-denied:1:1,audit:1:1"
     volumes:
       - kafka_data:/var/lib/kafka
     depends_on:
