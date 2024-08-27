@@ -28,7 +28,7 @@ public class DealControllerImpl implements DealController {
         return ResponseEntity.ok(dealService.createLoanOffers(loanApplicationRequest));
     }
 
-    @AuditAction(message = "Application is saved with APPROVED status")
+    @AuditAction(message = "Application is saved with APPROVED status.")
     @Override
     public ResponseEntity<Void> offer(LoanOfferDTO loanOffer) {
         log.info("/deal/offer requested with id - {}", loanOffer.getApplicationId());

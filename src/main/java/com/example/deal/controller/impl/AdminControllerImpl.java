@@ -1,5 +1,6 @@
 package com.example.deal.controller.impl;
 
+import com.example.deal.annotation.AuditAction;
 import com.example.deal.controller.AdminController;
 import com.example.deal.dto.SesCodeDTO;
 import com.example.deal.model.Application;
@@ -24,12 +25,14 @@ public class AdminControllerImpl implements AdminController {
         return ResponseEntity.ok(adminService.getSesCode(applicationId));
     }
 
+    @AuditAction(message = "Application by id requested.")
     @Override
     public ResponseEntity<Application> getApplication(Long applicationId) {
         log.info("/deal/admin/application/{applicationId} requested with id - {}", applicationId);
         return ResponseEntity.ok(adminService.getApplication(applicationId));
     }
 
+    @AuditAction(message = "Get all applications.")
     @Override
     public ResponseEntity<List<Application>> getAllApplications() {
         log.info("/deal/admin/application requested");

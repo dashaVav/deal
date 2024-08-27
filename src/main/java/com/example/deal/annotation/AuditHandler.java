@@ -1,7 +1,8 @@
 package com.example.deal.annotation;
 
 import com.example.deal.dto.AuditActionDTO;
-import com.example.deal.dto.enums.Service;
+import com.example.deal.dto.LoanOfferDTO;
+import com.example.deal.dto.enums.ServiceDTO;
 import com.example.deal.dto.enums.Type;
 import com.example.deal.service.NotificationProducer;
 import lombok.RequiredArgsConstructor;
@@ -11,10 +12,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Aspect
 @Component
@@ -25,46 +23,41 @@ public class AuditHandler {
     @Around("@annotation(auditAction)")
     public Object logAround(ProceedingJoinPoint joinPoint, AuditAction auditAction) throws Throwable {
         Long applicationId = getApplicationId(joinPoint.getArgs());
-        String message = auditAction.message();
+        String format = "%s - %s Application id - %d.";
 
-        AuditActionDTO startAuditActionDTO = new AuditActionDTO();
-        startAuditActionDTO.setId(UUID.randomUUID())
-                .setType(Type.START)
-                .setService(Service.DEAL)
-                .setMessage(LocalDateTime.now() + " - " + message + " - application id -" + applicationId);
-        notificationProducer.produceAuditAction(startAuditActionDTO);
+        notificationProducer.produceAuditAction(new AuditActionDTO(
+                UUID.randomUUID(), Type.START, ServiceDTO.DEAL,
+                String.format(format, LocalDateTime.now(), auditAction.message(), applicationId)
+        ));
 
         try {
             Object result = joinPoint.proceed();
 
-            AuditActionDTO auditActionDTO = new AuditActionDTO();
-            auditActionDTO.setId(UUID.randomUUID())
-                    .setType(Type.SUCCESS)
-                    .setService(Service.DEAL)
-                    .setMessage(LocalDateTime.now() + " - " + message + " - application id -" + applicationId);
-            notificationProducer.produceAuditAction(auditActionDTO);
+            notificationProducer.produceAuditAction(new AuditActionDTO(
+                    UUID.randomUUID(), Type.SUCCESS, ServiceDTO.DEAL,
+                    String.format(format, LocalDateTime.now(), auditAction.message(), applicationId)
+            ));
+
             return result;
         } catch (Exception e) {
-            AuditActionDTO auditActionDTO = new AuditActionDTO();
-            auditActionDTO.setId(UUID.randomUUID())
-                    .setType(Type.FAILURE)
-                    .setService(Service.DEAL)
-                    .setMessage(LocalDateTime.now() + " - " + message + " - application id -" + applicationId);
-            notificationProducer.produceAuditAction(auditActionDTO);
+            notificationProducer.produceAuditAction(new AuditActionDTO(
+                    UUID.randomUUID(), Type.FAILURE, ServiceDTO.DEAL,
+                    String.format(format, LocalDateTime.now(), auditAction.message(), applicationId)
+                            + " Exception message: " + e.getMessage()
+            ));
             throw e;
         }
     }
 
     private Long getApplicationId(Object[] args) {
-        String argsToString = Arrays.toString(args);
-
-        Pattern pattern = Pattern.compile("applicationId=(\\d+)");//|[(\d+)]
-        Matcher matcher = pattern.matcher(argsToString);
-
-        if (matcher.find()) {
-            return Long.parseLong(matcher.group(1));
-        } else {
-            return (long) -1;
+        for (Object arg : args) {
+            if (arg instanceof Long number) {
+                return number;
+            }
+            if (args[0] instanceof LoanOfferDTO loanOfferDTO) {
+                return loanOfferDTO.getApplicationId();
+            }
         }
+        return null;
     }
 }
