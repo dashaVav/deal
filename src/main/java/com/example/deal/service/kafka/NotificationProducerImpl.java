@@ -1,6 +1,5 @@
 package com.example.deal.service.kafka;
 
-import com.example.deal.dto.AuditActionDTO;
 import com.example.deal.dto.EmailMessage;
 import com.example.deal.service.NotificationProducer;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NotificationProducerImpl implements NotificationProducer {
     private final KafkaTemplate<String, EmailMessage> emailMessageKafkaTemplate;
-    private final KafkaTemplate<String, AuditActionDTO> auditActionKafkaTemplate;
 
     @Value("${spring.kafka.topic.finish-registration}")
     private String finishRegistrationTopic;
@@ -78,13 +76,5 @@ public class NotificationProducerImpl implements NotificationProducer {
     public void produceApplicationDenied(EmailMessage emailMessage) {
         emailMessageKafkaTemplate.send(applicationDeniedTopic, emailMessage);
         printLog(applicationDeniedTopic, emailMessage.getApplicationId());
-    }
-
-    @Value("${spring.kafka.topic.audit}")
-    private String auditActionTopic;
-
-    @Override
-    public void produceAuditAction(AuditActionDTO auditAction) {
-        auditActionKafkaTemplate.send(auditActionTopic, auditAction);
     }
 }

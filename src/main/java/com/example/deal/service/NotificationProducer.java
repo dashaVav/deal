@@ -1,6 +1,5 @@
 package com.example.deal.service;
 
-import com.example.deal.dto.AuditActionDTO;
 import com.example.deal.dto.EmailMessage;
 
 public interface NotificationProducer {
@@ -15,6 +14,4 @@ public interface NotificationProducer {
     void produceCreditIssued(EmailMessage emailMessage);
 
     void produceApplicationDenied(EmailMessage emailMessage);
-
-    void produceAuditAction(AuditActionDTO auditAction);
 }
