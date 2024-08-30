@@ -81,7 +81,7 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    public void calculate(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId, CreditDTO creditDTO) {
+    public void calculate(Long applicationId, CreditDTO creditDTO) {
         Application application = getApplicationById(applicationId);
 
         Credit credit = conversionService.convert(creditDTO, Credit.class);
@@ -158,6 +158,14 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Override
     public ApplicationStatus getApplicationStatus(Long applicationId) {
         return getApplicationById(applicationId).getApplicationStatus();
+    }
+
+    @Override
+    public void setCreditStatus(Long applicationId, CreditStatus creditStatus) {
+        Application application = getApplicationById(applicationId);
+        Credit credit = application.getCredit();
+        credit.setCreditStatus(creditStatus);
+        applicationRepository.save(application);
     }
 
     @Override

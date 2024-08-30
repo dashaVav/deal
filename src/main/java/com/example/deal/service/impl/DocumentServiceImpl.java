@@ -6,6 +6,7 @@ import com.example.deal.dto.enums.EmailMessageStatus;
 import com.example.deal.exception.InvalidSesCodeException;
 import com.example.deal.exception.UnresolvedOperationException;
 import com.example.deal.model.enums.ApplicationStatus;
+import com.example.deal.model.enums.CreditStatus;
 import com.example.deal.service.DocumentService;
 import com.example.deal.service.NotificationProducer;
 import com.example.deal.service.RepositoryService;
@@ -80,6 +81,7 @@ public class DocumentServiceImpl implements DocumentService {
         repositoryService.setApplicationStatus(applicationId, ApplicationStatus.DOCUMENT_SIGNED);
         repositoryService.setSignDate(applicationId);
         repositoryService.setApplicationStatus(applicationId, ApplicationStatus.CREDIT_ISSUED);
+        repositoryService.setCreditStatus(applicationId, CreditStatus.ISSUED);
         creditIssuedCounter.increment();
         notificationProducer.produceCreditIssued(
                 new EmailMessage(

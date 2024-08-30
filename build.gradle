@@ -2,7 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.0'
 	id 'io.spring.dependency-management' version '1.1.5'
-	id 'jacoco'
+//	id 'jacoco'
 }
 
 group = 'com.example'
@@ -62,16 +62,22 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+	implementation 'org.testcontainers:junit-jupiter'
+	implementation 'org.testcontainers:postgresql'
+	implementation 'org.liquibase:liquibase-core'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
 
-jacoco {
-	toolVersion = "0.8.7"
-}
+//jacoco {
+//	toolVersion = "0.8.7"
+//}
 
 test {
-	finalizedBy jacocoTestReport
+//	finalizedBy jacocoTestReport
 }

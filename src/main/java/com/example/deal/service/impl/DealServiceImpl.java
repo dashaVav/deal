@@ -91,7 +91,7 @@ public class DealServiceImpl implements DealService {
             throw e;
         }
 
-        repositoryService.calculate(finishRegistrationRequest, applicationId, credit);
+        repositoryService.calculate(applicationId, credit);
         notificationProducer.produceCreateDocuments(
                 new EmailMessage(
                         repositoryService.getEmailAddressByApplicationId(applicationId),
