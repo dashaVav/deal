@@ -19,6 +19,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,7 +41,7 @@ public class RepositoryServiceImpl implements RepositoryService {
                         .setClient(savedClient)
                         .setApplicationStatus(ApplicationStatus.PREAPPROVAL)
                         .setCreationDate(LocalDateTime.now())
-                        .setStatusHistory(List.of(initApplicationStatusHistoryDTO(ApplicationStatus.PREAPPROVAL)))
+                        .setStatusHistory(new ArrayList<>(List.of(initApplicationStatusHistoryDTO(ApplicationStatus.PREAPPROVAL))))
         );
 
         return savedApplication.getApplicationId();
