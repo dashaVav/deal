@@ -11,9 +11,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IntegrationTest extends IntegrationEnvironment {
     @Test
     public void testConnection() {
-        Assertions.assertTrue(POSTGRES.isRunning());
-        assertThat(POSTGRES.getUsername()).isEqualTo("deal_worker");
-        assertThat(POSTGRES.getPassword()).isEqualTo("deal_worker");
-        assertThat(POSTGRES.getDatabaseName()).isEqualTo("deal");
+        Assertions.assertTrue(postgres.isRunning());
+        assertThat(postgres.getUsername()).isEqualTo("deal_worker");
+        assertThat(postgres.getPassword()).isEqualTo("deal_worker");
+        assertThat(postgres.getDatabaseName()).isEqualTo("deal");
     }
 }
