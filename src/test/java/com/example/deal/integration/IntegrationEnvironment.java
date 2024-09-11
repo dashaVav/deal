@@ -21,16 +21,16 @@ import java.sql.DriverManager;
 
 @Testcontainers
 public class IntegrationEnvironment {
-    public static PostgreSQLContainer<?> POSTGRES;
+    public static PostgreSQLContainer<?> postgres;
 
     static {
-        POSTGRES = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"))
+        postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"))
                 .withDatabaseName("deal")
                 .withUsername("deal_worker")
                 .withPassword("deal_worker");
-        POSTGRES.start();
+        postgres.start();
 
-        runMigrations(POSTGRES);
+        runMigrations(postgres);
     }
 
     static void runMigrations(JdbcDatabaseContainer<?> c) {
@@ -53,8 +53,8 @@ public class IntegrationEnvironment {
 
     @DynamicPropertySource
     static void jdbcProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
-        registry.add("spring.datasource.username", POSTGRES::getUsername);
-        registry.add("spring.datasource.password", POSTGRES::getPassword);
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
     }
 }

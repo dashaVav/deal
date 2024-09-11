@@ -112,6 +112,14 @@ services:
   conveyor:
     image: ghcr.io/dashavav/conveyor:latest
     container_name: conveyor
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - kibana
     networks:
       - backend
 
@@ -121,9 +129,16 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
     depends_on:
       - postgresql
       - kafka
+      - kibana
     networks:
       - backend
 
@@ -134,15 +149,29 @@ services:
       AUTH_POSTGRES_USER: ${AUTH_POSTGRES_USER}
       AUTH_POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
       TOKEN_SIGNING_KEY: ${TOKEN_SIGNING_KEY}
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
     depends_on:
       - postgresql-auth
+      - kibana
     networks:
       - backend
-
 
   application:
     image: ghcr.io/dashavav/application:latest
     container_name: application
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - kibana
     networks:
       - backend
 
@@ -152,8 +181,15 @@ services:
     environment:
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       MAIL_USERNAME: ${MAIL_USERNAME}
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
     depends_on:
       - kafka
+      - kibana
     networks:
       - backend
 
@@ -162,12 +198,28 @@ services:
     container_name: api-gateway
     ports:
       - "8095:8095"
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - kibana
     networks:
       - backend
 
   audit:
     image: ghcr.io/dashavav/audit:latest
     container_name: audit
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - kibana
     networks:
       - backend
 
@@ -192,12 +244,43 @@ services:
     networks:
       - backend
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.enabled=true
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - backend
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.12.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_USERNAME=${ELASTIC_USER}
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    networks:
+      - backend
+
 volumes:
   zookeeper_data: { }
   kafka_data: { }
   postgresql-auth: { }
   postgresql: { }
   redisdata: { }
+  elasticsearch-data: { }
 
 networks:
   backend:
