@@ -1,0 +1,63 @@
+package com.example.deal.annotation;
+
+import com.example.deal.dto.AuditActionDTO;
+import com.example.deal.dto.LoanOfferDTO;
+import com.example.deal.dto.enums.ServiceDTO;
+import com.example.deal.dto.enums.Type;
+import com.example.deal.service.AuditProducer;
+import lombok.RequiredArgsConstructor;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Aspect
+@Component
+@RequiredArgsConstructor
+public class AuditHandler {
+    private final AuditProducer auditProducer;
+
+    @Around("@annotation(auditAction)")
+    public Object logAround(ProceedingJoinPoint joinPoint, AuditAction auditAction) throws Throwable {
+        Long applicationId = getApplicationId(joinPoint.getArgs());
+        String format = "%s - %s Application id - %d.";
+
+        auditProducer.produceAuditAction(new AuditActionDTO(
+                UUID.randomUUID(), Type.START, ServiceDTO.DEAL,
+                String.format(format, LocalDateTime.now(), auditAction.message(), applicationId)
+        ));
+
+        try {
+            Object result = joinPoint.proceed();
+
+            auditProducer.produceAuditAction(new AuditActionDTO(
+                    UUID.randomUUID(), Type.SUCCESS, ServiceDTO.DEAL,
+                    String.format(format, LocalDateTime.now(), auditAction.message(), applicationId)
+            ));
+
+            return result;
+        } catch (Exception e) {
+            auditProducer.produceAuditAction(new AuditActionDTO(
+                    UUID.randomUUID(), Type.FAILURE, ServiceDTO.DEAL,
+                    String.format(format, LocalDateTime.now(), auditAction.message(), applicationId)
+                            + " Exception message: " + e.getMessage()
+            ));
+            throw e;
+        }
+    }
+
+    private Long getApplicationId(Object[] args) {
+        for (Object arg : args) {
+            if (arg instanceof Long number) {
+                return number;
+            }
+            if (arg instanceof LoanOfferDTO loanOfferDTO) {
+                return loanOfferDTO.getApplicationId();
+            }
+        }
+        return null;
+    }
+}

@@ -28,6 +28,17 @@ services:
     networks:
       - backend
 
+  redis:
+    image: redis:latest
+    container_name: redis-db
+    hostname: redis-db
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - backend
+
   liquibase-migrations-deal:
     image: liquibase/liquibase:4.25
     depends_on:
@@ -90,7 +101,7 @@ services:
       ZOOKEEPER: zookeeper:2181
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_ADVERTISED_HOST_NAME: localhost
-      KAFKA_CREATE_TOPICS: "finish-registration:1:1,create-documents:1:1,send-documents:1:1,send-ses:1:1,credit-issued:1:1,application-denied:1:1"
+      KAFKA_CREATE_TOPICS: "finish-registration:1:1,create-documents:1:1,send-documents:1:1,send-ses:1:1,credit-issued:1:1,application-denied:1:1,audit:1:1"
     volumes:
       - kafka_data:/var/lib/kafka
     depends_on:
@@ -135,7 +146,6 @@ services:
     networks:
       - backend
 
-
   dossier:
     image: ghcr.io/dashavav/dossier:latest
     container_name: dossier
@@ -152,6 +162,12 @@ services:
     container_name: api-gateway
     ports:
       - "8095:8095"
+    networks:
+      - backend
+
+  audit:
+    image: ghcr.io/dashavav/audit:latest
+    container_name: audit
     networks:
       - backend
 
@@ -181,6 +197,7 @@ volumes:
   kafka_data: { }
   postgresql-auth: { }
   postgresql: { }
+  redisdata: { }
 
 networks:
   backend:

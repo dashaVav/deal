@@ -1,5 +1,6 @@
 package com.example.deal.controller.impl;
 
+import com.example.deal.annotation.AuditAction;
 import com.example.deal.controller.DocumentController;
 import com.example.deal.dto.SesCodeDTO;
 import com.example.deal.service.DocumentService;
@@ -29,6 +30,7 @@ public class DocumentControllerImpl implements DocumentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @AuditAction(message = "Application is saved with CREDIT_ISSUED status.")
     @Override
     public ResponseEntity<Void> code(Long applicationId, SesCodeDTO sesCode) {
         log.info("/deal/document/{applicationId}/code requested with id - {}", applicationId);
