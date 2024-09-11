@@ -13,7 +13,22 @@ services:
     networks:
       - backend
 
-  liquibase-migrations:
+  postgresql-auth:
+    image: postgres:16
+    container_name: postgresql-auth
+    hostname: postgresql-auth
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: auth
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+    volumes:
+      - postgresql-auth:/var/lib/postgresql-auth/data
+    networks:
+      - backend
+
+  liquibase-migrations-deal:
     image: liquibase/liquibase:4.25
     depends_on:
       - postgresql
@@ -25,7 +40,23 @@ services:
       - --password=${POSTGRES_PASSWORD}
       - update
     volumes:
-      - ./src/main/resources/migrations:/liquibase/changelog
+      - ./src/main/resources/migrations-deal:/liquibase/changelog
+    networks:
+      - backend
+
+  liquibase-migrations-auth:
+    image: liquibase/liquibase:4.25
+    depends_on:
+      - postgresql-auth
+    command:
+      - --changelog-file=master.xml
+      - --driver=org.postgresql.Driver
+      - --url=jdbc:postgresql://postgresql-auth:5432/auth
+      - --username=${AUTH_POSTGRES_USER}
+      - --password=${AUTH_POSTGRES_PASSWORD}
+      - update
+    volumes:
+      - ./src/main/resources/migrations-auth:/liquibase/changelog
     networks:
       - backend
 
@@ -70,8 +101,6 @@ services:
   conveyor:
     image: ghcr.io/dashavav/conveyor:latest
     container_name: conveyor
-    ports:
-      - "8091:8091"
     networks:
       - backend
 
@@ -81,11 +110,21 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "8092:8092"
     depends_on:
       - postgresql
       - kafka
+    networks:
+      - backend
+
+  auth:
+    image: ghcr.io/dashavav/auth:latest
+    container_name: auth
+    environment:
+      AUTH_POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      AUTH_POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      TOKEN_SIGNING_KEY: ${TOKEN_SIGNING_KEY}
+    depends_on:
+      - postgresql-auth
     networks:
       - backend
 
@@ -93,8 +132,6 @@ services:
   application:
     image: ghcr.io/dashavav/application:latest
     container_name: application
-    ports:
-      - "8093:8093"
     networks:
       - backend
 
@@ -105,8 +142,6 @@ services:
     environment:
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       MAIL_USERNAME: ${MAIL_USERNAME}
-    ports:
-      - "8094:8094"
     depends_on:
       - kafka
     networks:
@@ -142,9 +177,10 @@ services:
       - backend
 
 volumes:
-  postgresql: { }
   zookeeper_data: { }
   kafka_data: { }
+  postgresql-auth: { }
+  postgresql: { }
 
 networks:
   backend:
