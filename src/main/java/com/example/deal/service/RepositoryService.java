@@ -3,6 +3,7 @@ package com.example.deal.service;
 import com.example.deal.dto.*;
 import com.example.deal.model.Application;
 import com.example.deal.model.enums.ApplicationStatus;
+import com.example.deal.model.enums.CreditStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public interface RepositoryService {
     void saveClientAdditionalInfo(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId);
 
     @Transactional
-    void calculate(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId, CreditDTO creditDTO);
+    void calculate(Long applicationId, CreditDTO creditDTO);
 
     ScoringDataDTO getScoringData(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId);
 
@@ -44,4 +45,7 @@ public interface RepositoryService {
     void saveLoanOffers(Long applicationId, List<LoanOfferDTO> loanOffers);
 
     ApplicationStatus getApplicationStatus(Long applicationId);
+
+    @Transactional
+    void setCreditStatus(Long applicationId, CreditStatus creditStatus);
 }

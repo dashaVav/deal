@@ -51,11 +51,11 @@ public class Application {
     @JdbcTypeCode(SqlTypes.JSON)
     private List<ApplicationStatusHistory> statusHistory = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "credit_id")
     private Credit credit;
 

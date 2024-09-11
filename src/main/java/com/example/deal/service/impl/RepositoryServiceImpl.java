@@ -19,6 +19,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,7 +41,7 @@ public class RepositoryServiceImpl implements RepositoryService {
                         .setClient(savedClient)
                         .setApplicationStatus(ApplicationStatus.PREAPPROVAL)
                         .setCreationDate(LocalDateTime.now())
-                        .setStatusHistory(List.of(initApplicationStatusHistoryDTO(ApplicationStatus.PREAPPROVAL)))
+                        .setStatusHistory(new ArrayList<>(List.of(initApplicationStatusHistoryDTO(ApplicationStatus.PREAPPROVAL))))
         );
 
         return savedApplication.getApplicationId();
@@ -81,7 +82,7 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    public void calculate(FinishRegistrationRequestDTO finishRegistrationRequest, Long applicationId, CreditDTO creditDTO) {
+    public void calculate(Long applicationId, CreditDTO creditDTO) {
         Application application = getApplicationById(applicationId);
 
         Credit credit = conversionService.convert(creditDTO, Credit.class);
@@ -158,6 +159,14 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Override
     public ApplicationStatus getApplicationStatus(Long applicationId) {
         return getApplicationById(applicationId).getApplicationStatus();
+    }
+
+    @Override
+    public void setCreditStatus(Long applicationId, CreditStatus creditStatus) {
+        Application application = getApplicationById(applicationId);
+        Credit credit = application.getCredit();
+        credit.setCreditStatus(creditStatus);
+        applicationRepository.save(application);
     }
 
     @Override
