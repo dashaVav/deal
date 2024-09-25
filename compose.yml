@@ -1,0 +1,287 @@
+services:
+  postgresql:
+    image: postgres:16
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: deal
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  postgresql-auth:
+    image: postgres:16
+    container_name: postgresql-auth
+    hostname: postgresql-auth
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: auth
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+    volumes:
+      - postgresql-auth:/var/lib/postgresql-auth/data
+    networks:
+      - backend
+
+  redis:
+    image: redis:latest
+    container_name: redis-db
+    hostname: redis-db
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - backend
+
+  liquibase-migrations-deal:
+    image: liquibase/liquibase:4.25
+    depends_on:
+      - postgresql
+    command:
+      - --changelog-file=master.xml
+      - --driver=org.postgresql.Driver
+      - --url=jdbc:postgresql://postgresql:5432/deal
+      - --username=${POSTGRES_USER}
+      - --password=${POSTGRES_PASSWORD}
+      - update
+    volumes:
+      - ./src/main/resources/migrations-deal:/liquibase/changelog
+    networks:
+      - backend
+
+  liquibase-migrations-auth:
+    image: liquibase/liquibase:4.25
+    depends_on:
+      - postgresql-auth
+    command:
+      - --changelog-file=master.xml
+      - --driver=org.postgresql.Driver
+      - --url=jdbc:postgresql://postgresql-auth:5432/auth
+      - --username=${AUTH_POSTGRES_USER}
+      - --password=${AUTH_POSTGRES_PASSWORD}
+      - update
+    volumes:
+      - ./src/main/resources/migrations-auth:/liquibase/changelog
+    networks:
+      - backend
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper
+    networks:
+      - backend
+
+  kafka:
+    image: confluentinc/cp-kafka:7.2.1
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "29091:29091"
+    environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9091,PLAINTEXT_HOST://localhost:29091
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9091,PLAINTEXT_HOST://0.0.0.0:29091
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 1
+      BOOTSTRAP_SERVERS: kafka:9091
+      ZOOKEEPER: zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_CREATE_TOPICS: "finish-registration:1:1,create-documents:1:1,send-documents:1:1,send-ses:1:1,credit-issued:1:1,application-denied:1:1,audit:1:1"
+    volumes:
+      - kafka_data:/var/lib/kafka
+    depends_on:
+      - zookeeper
+    networks:
+      - backend
+
+  conveyor:
+    image: ghcr.io/dashavav/conveyor:latest
+    container_name: conveyor
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - kibana
+    networks:
+      - backend
+
+  deal:
+    image: ghcr.io/dashavav/deal:latest
+    container_name: deal
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - postgresql
+      - kafka
+      - kibana
+    networks:
+      - backend
+
+  auth:
+    image: ghcr.io/dashavav/auth:latest
+    container_name: auth
+    environment:
+      AUTH_POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      AUTH_POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      TOKEN_SIGNING_KEY: ${TOKEN_SIGNING_KEY}
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - postgresql-auth
+      - kibana
+    networks:
+      - backend
+
+  application:
+    image: ghcr.io/dashavav/application:latest
+    container_name: application
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - kibana
+    networks:
+      - backend
+
+  dossier:
+    image: ghcr.io/dashavav/dossier:latest
+    container_name: dossier
+    environment:
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - kafka
+      - kibana
+    networks:
+      - backend
+
+  api-gateway:
+    image: ghcr.io/dashavav/api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "8095:8095"
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - kibana
+    networks:
+      - backend
+
+  audit:
+    image: ghcr.io/dashavav/audit:latest
+    container_name: audit
+    logging:
+      driver: elastic/elastic-logging-plugin:7.12.0
+      options:
+        hosts: "http://localhost:9200"
+        user: ${ELASTIC_USER}
+        password: ${ELASTIC_PASSWORD}
+    depends_on:
+      - kibana
+    networks:
+      - backend
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - backend
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    networks:
+      - backend
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.enabled=true
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - backend
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.12.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_USERNAME=${ELASTIC_USER}
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    networks:
+      - backend
+
+volumes:
+  zookeeper_data: { }
+  kafka_data: { }
+  postgresql-auth: { }
+  postgresql: { }
+  redisdata: { }
+  elasticsearch-data: { }
+
+networks:
+  backend:
+    external: true

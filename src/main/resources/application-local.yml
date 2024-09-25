@@ -2,7 +2,7 @@ spring:
   application:
     name: deal
   datasource:
-    url: jdbc:postgresql://postgresql:5432/deal
+    url: jdbc:postgresql://localhost:5432/deal
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
   liquibase:
@@ -16,7 +16,7 @@ spring:
         format_sql: true
     database: postgresql
   kafka:
-    bootstrap-servers: kafka:9091
+    bootstrap-servers: localhost:29091
     topic:
       finish-registration: finish-registration
       create-documents: create-documents
@@ -35,7 +35,7 @@ springdoc:
 
 feign-client:
   conveyor-client:
-    base-url: http://conveyor:8091
+    base-url: http://localhost:8091
     offers-path: /conveyor/offers
     calculation-path: /conveyor/calculation
     retryer:
